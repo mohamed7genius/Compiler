@@ -7,13 +7,13 @@ using System.Web.Mvc;
 namespace Compiler.Models
 {
 
-    public class transitionTable 
+    public static class transitionTable 
     {
 
 
-        int[,] stateTransitions= new int[99,127];
+        static int[,] stateTransitions= new int[99,127];
 
-        public void init()
+        public  static int[,] init()
         {
 
             for (int row = 0; row < 99; row++)
@@ -95,7 +95,7 @@ namespace Compiler.Models
             stateTransitions[(int)State.BE, 'w'] = (int)State.BR;
             stateTransitions[(int)State.BF, 'w'] = (int)State.BS;
             stateTransitions[(int)State.BG, 'p'] = (int)State.BT;
-            stateTransitions[(int)State.BG, 'n'] = (int)State.BU;
+            stateTransitions[(int)State.BH, 'n'] = (int)State.BU;
             stateTransitions[(int)State.BI, 't'] = (int)State.BV;
             stateTransitions[(int)State.BJ, 'n'] = (int)State.BW;
             stateTransitions[(int)State.BM, 'u'] = (int)State.BX;
@@ -122,36 +122,7 @@ namespace Compiler.Models
             stateTransitions[(int)State.CQ, 's'] = (int)State.CS;
             stateTransitions[(int)State.CR, 'e'] = (int)State.CT;
             stateTransitions[(int)State.CT, 'n'] = (int)State.CU;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return stateTransitions;
 
 
         }

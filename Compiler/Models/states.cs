@@ -107,11 +107,11 @@ namespace Compiler.Models
         CT,
         CU
     }
-    public  class states
+    public  static class states
     {
         
 
-        State[] acceptedStates =
+        public static State[] acceptedStates =
          {
 
             State.C,
