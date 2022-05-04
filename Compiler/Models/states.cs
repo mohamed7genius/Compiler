@@ -102,10 +102,7 @@ namespace Compiler.Models
         CO,
         CP,
         CQ,
-        CR,
-        CS,
-        CT,
-        CU
+        CR
     }
     public  static class states
     {
@@ -139,21 +136,22 @@ namespace Compiler.Models
             State.AH,
             State.AJ,
             State.AL,
-            State.AV,
-            State.BA,
-            State.BK,
+            State.AU,
+            State.AZ,
+            State.BI,
+            State.BJ,
             State.BL,
             State.BN,
             State.BP,
-            State.BS,
+            State.BQ,
             State.BT,
-            State.BW,
-            State.CA,
-            State.CI,
-            State.CO,
+            State.BX,
+            State.CF,
+            State.CL,
+            State.CM,
             State.CP,
-            State.CS,
-            State.CU
+            State.CR,
+
         };
 
 

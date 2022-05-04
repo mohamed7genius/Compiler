@@ -28,6 +28,7 @@ namespace Compiler.Controllers
         int totalErrors = 0;
         bool isComment = false;
         bool acceptedState = false;
+        bool isConstant = false;
         List<String> scannerOutput = new List<string>();
         public void scanCode(String code)
         {
@@ -37,39 +38,47 @@ namespace Compiler.Controllers
 
             int[,] validTransitions = transitionTable.init();
 
-            for (int i=0;i<code.Length;i++)
+            for (int i = 0; i < code.Length; i++)
             {
 
                 //  handling comments
-                if (code[i] == '/'&&code[i + 1] == '$')
+                if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
                 {
-                        isComment = true;
-                        continue;                   
+                    isComment = true;
+                    continue;
 
                 }
-                if (isComment&&code[i] == '$' && (i <= code.Length - 2)&& code[i + 1] == '/')
+                if (isComment && code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
                 {
-                        isComment = false;
-                        continue;
-                    
+                    isComment = false;
+                    i++;
+                    continue;
+
                 }
                 if (isComment) continue;
                 //--------------------------------
                 //handeling the end of the line
-                if (code[i] == '\n' || code[i] == ';')
+                if (code[i] == '\n')
                 {
                     lineNumber++;
                     continue;
                 }
                 //--------------------------------
                 //checking the constant
-                if (IsDigit(code[i]))
-                {
-                    currentsState = (int)State.O;
+                if (token.Length != 0 && IsDigit(token[0]) && code[i] != ' ')
+                { 
+                    if (!IsDigit(code[i]))
+                    {
+                        currentsState = -1;
+                    }
+                    else
+                    {
+                        currentsState = (int)State.O;
+                    }
                 }
                 //--------------------------------
                 //handeling spaces
-                else if (code[i]==' '||code[i]=='\t')
+                 if ((code[i]==' '||code[i]=='\t')||(i==code.Length-1))
                 {
                     while (i < code.Length-1 &&code[i+1]==' ')
                     {
@@ -79,9 +88,9 @@ namespace Compiler.Controllers
                     {
                         if (state == (State)currentsState) acceptedState = true;
                     }
-                    if (acceptedState&&!IsRestrictedValue(token))
+                    if (acceptedState)
                     {
-                        if (currentsState == (int)State.O||currentsState == (int)State.AJ)
+                        if (currentsState == (int)State.O)
                         {
                             scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
                         }
@@ -96,23 +105,9 @@ namespace Compiler.Controllers
                         continue;
 
                     }
-                    else if (currentsState==-1&&!acceptedState&& code[i] != ' ')
+                    else if (currentsState==-1&& code[i] != ' ')
                     {
-                        if (checkIdentifier(token))
-                        {
-                            scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
-                            token = "";
-                        }
-                        else
-                        {
-                            if (!IsRestrictedValue(token))
-                            {
-                                scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
-                                totalErrors++;
-                                token = "";
-                            }
-
-                        }
+                        checkIfIdentifierOrErrorValue();
                     }
 
                 }
@@ -121,7 +116,7 @@ namespace Compiler.Controllers
                 if (currentsState != -1 && code[i] != ' ')
                 {
                     currentsState = (int)validTransitions[(int)currentsState, code[i]];
-                    if(IsDigit(code[i])&&currentsState!=-1)currentsState=(int)State.O;
+                    //if(IsDigit(code[i]))currentsState=(int)State.O;
                     token += code[i];
                 }
                 else if (currentsState == -1 && code[i] != ' ')
@@ -131,21 +126,7 @@ namespace Compiler.Controllers
                 }
                 else
                 {
-                    if (checkIdentifier(token))
-                    {
-                        scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
-                    }
-                    else
-                    {
-                        if (!IsRestrictedValue(token))
-                        {
-                            scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
-                            totalErrors++;
-                        }
-
-                    }
-                    token = "";
-                    currentsState = (int)State.A;
+                    checkIfIdentifierOrErrorValue();
                 }
 
             }
@@ -153,6 +134,22 @@ namespace Compiler.Controllers
         }
 
 
+        public void checkIfIdentifierOrErrorValue()
+        {
+            if (checkIdentifier(token))
+            {
+                scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
+            }
+            else
+            {
+
+                scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
+                totalErrors++;
+            }
+            token = "";
+            currentsState = (int)State.A;
+
+        }
         public bool IsDigit(char token)
         {
             foreach ( char number in numbers)
@@ -201,7 +198,7 @@ namespace Compiler.Controllers
         public ActionResult Index()
         {
 
-            scanCode("544 ");
+            scanCode("/$ mohamed khaled $/ ");
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);
