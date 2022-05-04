@@ -28,7 +28,7 @@ namespace Compiler.Controllers
         int totalErrors = 0;
         bool isComment = false;
         bool acceptedState = false;
-        bool isConstant = false;
+        bool canBeConstant = true;
         List<String> scannerOutput = new List<string>();
         public void scanCode(String code)
         {
@@ -38,9 +38,12 @@ namespace Compiler.Controllers
 
             int[,] validTransitions = transitionTable.init();
 
+            // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
+            if (code[code.Length - 1] != ' ')
+                code += ' ';
+
             for (int i = 0; i < code.Length; i++)
             {
-
                 //  handling comments
                 if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
                 {
@@ -65,11 +68,12 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //checking the constant
-                if (token.Length != 0 && IsDigit(token[0]) && code[i] != ' ')
+                if (canBeConstant && token.Length != 0 && IsDigit(token[0]) && code[i - 1] != ' ')
                 { 
-                    if (!IsDigit(code[i]))
+                    if (!IsDigit(code[i - 1]))
                     {
                         currentsState = -1;
+                        canBeConstant = false;
                     }
                     else
                     {
@@ -100,6 +104,7 @@ namespace Compiler.Controllers
                         }
 
                         token = "";
+                        canBeConstant = true;
                         acceptedState = false;
                         currentsState = (int)State.A;
                         continue;
@@ -115,7 +120,11 @@ namespace Compiler.Controllers
                 //translating throught transition table
                 if (currentsState != -1 && code[i] != ' ')
                 {
-                    currentsState = (int)validTransitions[(int)currentsState, code[i]];
+                    if (currentsState != (int)State.O)
+                    {
+                        currentsState = (int)validTransitions[(int)currentsState, code[i]];
+                    }
+                    
                     //if(IsDigit(code[i]))currentsState=(int)State.O;
                     token += code[i];
                 }
@@ -136,19 +145,22 @@ namespace Compiler.Controllers
 
         public void checkIfIdentifierOrErrorValue()
         {
-            if (checkIdentifier(token))
+            if(token.Length > 0)
             {
-                scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
-            }
-            else
-            {
+                if (checkIdentifier(token))
+                {
+                    scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
+                }
+                else
+                {
 
-                scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
-                totalErrors++;
+                    scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
+                    totalErrors++;
+                }
+                token = "";
+                canBeConstant = true;
+                currentsState = (int)State.A;
             }
-            token = "";
-            currentsState = (int)State.A;
-
         }
         public bool IsDigit(char token)
         {
@@ -197,8 +209,7 @@ namespace Compiler.Controllers
 
         public ActionResult Index()
         {
-
-            scanCode("/$ mohamed khaled $/ ");
+            scanCode("If Else low SIow Chlo Chain SIowf Worthless Turnback 123 i12 1i2 12i 123 /$ MY EPIC COMMENT!!! $/ when Loopwhen Iterate Stop + - * / < > Include Loli ");
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);
