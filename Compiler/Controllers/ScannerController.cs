@@ -23,8 +23,9 @@ namespace Compiler.Controllers
             ' ','\n',';'
         };
         string token;
-        int currentsState;
-        int lineNumber = 1;
+        int[,] validTransitions = transitionTable.init();
+        int currentsState;  
+        int lineNumber = 1;  
         int totalErrors = 0;
         bool isComment = false;
         bool acceptedState = false;
@@ -36,7 +37,6 @@ namespace Compiler.Controllers
             currentsState = (int)State.A;
             isComment = false;
 
-            int[,] validTransitions = transitionTable.init();
 
             // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
             if (code[code.Length - 1] != ' ')
@@ -137,8 +137,10 @@ namespace Compiler.Controllers
                 {
                     checkIfIdentifierOrErrorValue();
                 }
+                
 
             }
+            scannerOutput.Add("Total NO of errors: " + totalErrors);
 
         }
 
@@ -209,7 +211,7 @@ namespace Compiler.Controllers
 
         public ActionResult Index()
         {
-            scanCode("If Else low SIow Chlo Chain SIowf Worthless Turnback 123 i12 1i2 12i 123 /$ MY EPIC COMMENT!!! $/ when Loopwhen Iterate Stop + - * / < > Include Loli ");
+            scanCode("6557i465  4444i444554 int 4444i444554 534223 5342i23 ");
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);

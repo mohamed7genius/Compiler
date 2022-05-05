@@ -150,8 +150,7 @@ namespace Compiler.Models
             State.CL,
             State.CM,
             State.CP,
-            State.CR,
-
+            State.CR
         };
 
 
