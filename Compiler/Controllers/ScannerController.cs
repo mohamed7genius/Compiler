@@ -83,27 +83,27 @@ namespace Compiler.Controllers
                     }
                 }
                 //--------------------------------
-                ////translating throught transition table
-                //if (currentsState != -1 && code[i] != ' ')
-                //{
-                //    if (currentsState != (int)State.O)
-                //    {
-                //        //set state 
-                //        currentsState = (int)validTransitions[(int)currentsState, code[i]];
-                //    }
+                //translating throught transition table
+                if (currentsState != -1 && code[i] != ' ')
+                {
+                    if (currentsState != (int)State.O)
+                    {
+                        //set state 
+                        currentsState = (int)validTransitions[(int)currentsState, code[i]];
+                    }
 
-                //    //if(IsDigit(code[i]))currentsState=(int)State.O;
-                //    token += code[i];
-                //}
-                //else if (currentsState == -1 && code[i] != ' ')
-                //{
-                //    token += code[i];
-                //    continue;
-                //}
-                //else
-                //{
-                //    checkIfIdentifierOrErrorValue();
-                //}
+                    //if(IsDigit(code[i]))currentsState=(int)State.O;
+                    token += code[i];
+                }
+                else if (currentsState == -1 && code[i] != ' ')
+                {
+                    token += code[i];
+                    continue;
+                }
+                else
+                {
+                    checkIfIdentifierOrErrorValue();
+                }
                 //handeling end of tokens
                 if ((specialCharacters.Contains(code[i]) || restrictedValuesForToken.Contains(code[i]) || (i == code.Length - 1)))
                 //if ((code[i] == ' ' || code[i] == '\t') || (i == code.Length - 1))
@@ -127,7 +127,7 @@ namespace Compiler.Controllers
                         }
                         else
                         {
-                            scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "  r   " + KeyWordsDictionary.keyWordsAndTokens[token]);
+                            scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "     " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
 
                         token = "";
