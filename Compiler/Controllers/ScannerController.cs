@@ -41,7 +41,6 @@ namespace Compiler.Controllers
             // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
             if (code[code.Length - 1] != ' ')
                 code += ' ';
-
             for (int i = 0; i < code.Length; i++)
             {
                 //  handling comments
@@ -49,14 +48,12 @@ namespace Compiler.Controllers
                 {
                     isComment = true;
                     continue;
-
                 }
                 if (isComment && code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
                 {
                     isComment = false;
                     i++;
                     continue;
-
                 }
                 if (isComment) continue;
                 //--------------------------------
@@ -92,7 +89,17 @@ namespace Compiler.Controllers
                     {
                         if (state == (State)currentsState) acceptedState = true;
                     }
-                    if (acceptedState)
+                    // Handeling Include
+                    if(currentsState == (int)State.CF)
+                    {
+                        //i -= 7;
+                        LinkerController.LinkFiles(ref code, i);
+                        token = "";
+                        currentsState = (int)State.A;
+                        acceptedState = false;
+                        //i -= 4;
+                    }
+                    else if (acceptedState)
                     {
                         if (currentsState == (int)State.O)
                         {
@@ -137,8 +144,6 @@ namespace Compiler.Controllers
                 {
                     checkIfIdentifierOrErrorValue();
                 }
-                
-
             }
             scannerOutput.Add("Total NO of errors: " + totalErrors);
 
@@ -152,6 +157,7 @@ namespace Compiler.Controllers
                 if (checkIdentifier(token))
                 {
                     scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
+                    LinkerController.AddIdentifier(token, null);
                 }
                 else
                 {
@@ -211,14 +217,14 @@ namespace Compiler.Controllers
 
         public ActionResult Index()
         {
-            scanCode("6557i465  4444i444554 int 4444i444554 534223 5342i23 ");
+            scanCode("Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" 4444i444554 534223 5342i23 ");
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);
             }
 
 
-
+            LinkerController.GetIdentifierFilePath("Else");
 
 
             return View();
