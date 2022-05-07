@@ -22,14 +22,22 @@ namespace Compiler.Controllers
         };
         string token;
         int[,] validTransitions = transitionTable.init();
-        int currentsState;  
-        int lineNumber = 1;  
+        int currentsState;
+        int lineNumber = 1;
         int totalErrors = 0;
         bool isComment = false;
+        bool LineComment = false;
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
         public void scanCode(string code, string filePath)
+        int start = -1;
+        int end = -1;
+
+        List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
+
+        List<String> scannerOutput = new List<string>();
+        public void scanCode(String code)
         {
             initValues();
 
@@ -38,6 +46,17 @@ namespace Compiler.Controllers
                 code += ' ';
             for (int i = 0; i < code.Length; i++)
             {
+                
+                if (code[i] == '\r')
+                {
+                    continue;
+                }
+                if ((code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';' && code[i] != '\n' && !isComment && !LineComment))
+                {
+                    //Debug.WriteLine(i + "char is : " + code[i]);
+                    setStart(i);
+
+                }
                 //  handling comments
                 if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
                 {
@@ -50,7 +69,23 @@ namespace Compiler.Controllers
                     i++;
                     continue;
                 }
-                if (isComment) continue;
+                if (code[i] == '$' && code[i+1] == '$' && code[i+2] == '$' )
+                {
+                    LineComment = true;
+                    i += 2;
+                    continue;
+                }
+                if(LineComment && code[i]=='\n')
+                {
+                    LineComment = false;
+                    setEnd(i);
+                    token = new String(code.ToCharArray(), start, end);
+                    setDetails();
+                    token = "";
+                    lineNumber++;
+                    continue;
+                }
+                if (isComment||LineComment) continue;
                 //--------------------------------
                 //handeling the end of the line
                 if (code[i] == '\n')
@@ -61,7 +96,7 @@ namespace Compiler.Controllers
                 //--------------------------------
                 //checking the constant
                 if (canBeConstant && token.Length != 0 && IsDigit(token[0]) && code[i - 1] != ' ')
-                { 
+                {
                     if (!IsDigit(code[i - 1]))
                     {
                         currentsState = -1;
@@ -74,9 +109,10 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //handeling spaces
-                 if ((code[i]==' '||code[i]=='\t')||(i==code.Length-1))
+                if ((code[i] == ' ' || code[i] == '\t') || code[i] == ',' || code[i] == ';' || (i == code.Length - 1))
                 {
-                    while (i < code.Length-1 &&code[i+1]==' ')
+                    
+                    while (i < code.Length - 1 && code[i + 1] == ' ')
                     {
                         i++;
                     }
@@ -102,14 +138,16 @@ namespace Compiler.Controllers
                         {
                             scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
+                        setEnd(i);
+                        setDetails();
 
                         initValues();
                         continue;
 
                     }
-                    else if (currentsState==-1&& code[i] != ' ')
+                    else if (currentsState == -1 && code[i] != ' ')
                     {
-                        checkIfIdentifierOrErrorValue(filePath);
+                        checkIfIdentifierOrErrorValue(filePath,i);
                     }
 
                 }
@@ -121,7 +159,7 @@ namespace Compiler.Controllers
                     {
                         currentsState = (int)validTransitions[(int)currentsState, code[i]];
                     }
-                    
+
                     token += code[i];
                 }
                 else if (currentsState == -1 && code[i] != ' ')
@@ -131,8 +169,9 @@ namespace Compiler.Controllers
                 }
                 else
                 {
-                    checkIfIdentifierOrErrorValue(filePath);
+                    checkIfIdentifierOrErrorValue(filePath,i);
                 }
+
             }
 
             PrintNumErrors();
@@ -152,9 +191,9 @@ namespace Compiler.Controllers
             canBeConstant = true;
         }
 
-        public void checkIfIdentifierOrErrorValue(string filePath)
+        public void checkIfIdentifierOrErrorValue(string filePath,int i)
         {
-            if(token.Length > 0)
+            if (token.Length > 0)
             {
                 if (checkIdentifier(token))
                 {
@@ -168,52 +207,87 @@ namespace Compiler.Controllers
                 }
 
                 initValues();
+                setEnd(i);
+                setDetails();
             }
         }
         public bool IsDigit(char token)
         {
-            foreach ( char number in numbers)
-            {
-                if (token == number) return true;
-            }
-            return false;
+            return numbers.Contains(token);
         }
         public bool IsSpecialCharacter(char token)
         {
-            foreach (char character in specialCharacters)
-            {
-                if (token == character) return true;
-            }
-            return false;
+            return specialCharacters.Contains(token);
         }
+
         public bool checkIdentifier(string token)
         {
             bool flag = false;
             for (int i = 1; i <= token.Length; i++)
             {
-                if (!IsDigit(token[0])&&!IsSpecialCharacter(token[0])) flag=true;
-                if (!IsSpecialCharacter(token[i-1]) && i < token.Length - 1)
+                if (!IsDigit(token[0]) && !IsSpecialCharacter(token[0])) flag = true;
+                if (!IsSpecialCharacter(token[i - 1]) && i <= token.Length - 1)
                 {
                     continue;
                 }
-                else if (!IsSpecialCharacter(token[i-1])&&flag==true) return true;
+                else if (!IsSpecialCharacter(token[i - 1]) && flag == true) return true;
                 return false;
 
             }
             return false;
         }
 
+        public void setStart (int i)
+        {
+            if(start == -1)
+            {
+                start = i ;
+            }
+            else if (end != -1)
+            {
+                start = i;
+                end = -1;
+                //Debug.WriteLine("---------end = " + end);
+
+            }
+            //Debug.WriteLine("IIstart = " +i);
+            //Debug.WriteLine("start = " + start);
+        }
+
+        public void setEnd (int i)
+        {
+            end = i;
+            //Debug.WriteLine("IIend = "+i);
+            //Debug.WriteLine("end = " + end);
+        }
+
+        public void setDetails ()
+        {
+            Tokens.Add(new Dictionary<string, string>()
+            {
+                { "Name", token },
+                { "Start", start.ToString() },
+                { "End", end.ToString() }
+            });
+        }
+
         public ActionResult Index()
         {
-            Instance = this;
-            //State state = (State)83; // CF
-            scanCode("12i Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" 4444i444554 534223 ID 5342i23 ", null);
+            scanCode("$$$ Iow " +"\n"+"fer");
+
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);
             }
 
-            Debug.WriteLine(LinkerController.GetIdentifierCode("ID3"));
+            foreach (var Tok in Tokens)
+            {
+                foreach (var item in Tok)
+                {
+                    Debug.WriteLine(item.Key + " = " + item.Value);
+                }
+            }
+
 
             return View();
         }
