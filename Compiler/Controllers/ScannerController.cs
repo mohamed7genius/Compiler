@@ -273,11 +273,12 @@ namespace Compiler.Controllers
             });
         }
 
-        public ActionResult Index()
+        [HttpPost]
+        public ActionResult Index(string code)
         {
             Instance = this;
 
-            ScanCode("123i432 Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" SIow fds", null);
+            ScanCode(code, null);
 
             foreach (String line in scannerOutput)
             {
@@ -293,7 +294,7 @@ namespace Compiler.Controllers
             }
 
 
-            return View();
+            return Json(new { status = 200, data = scannerOutput });
         }
     }
 }
