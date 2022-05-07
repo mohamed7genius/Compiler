@@ -10,6 +10,8 @@ namespace Compiler.Controllers
 {
     public class ScannerController : Controller
     {
+        public static ScannerController Instance;
+
         char[] numbers =
         {
             '0','1','2','3','4','5','6','7','8','9'
@@ -17,10 +19,6 @@ namespace Compiler.Controllers
         char[] specialCharacters =
         {
             '!','-','%','*','#','\'','^','+','/','(',')','=','{','}','[',']','|',':',';','<','>',',',',','.','\"','$','@','~','&'
-        };
-        char[] restrictedValuesForToken =
-            {
-            ' ','\n',';'
         };
         string token;
         int[,] validTransitions = transitionTable.init();
@@ -30,13 +28,10 @@ namespace Compiler.Controllers
         bool isComment = false;
         bool acceptedState = false;
         bool canBeConstant = true;
-        List<String> scannerOutput = new List<string>();
-        public void scanCode(String code)
+        public List<string> scannerOutput = new List<string>();
+        public void scanCode(string code, string filePath)
         {
-            token = "";
-            currentsState = (int)State.A;
-            isComment = false;
-
+            initValues();
 
             // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
             if (code[code.Length - 1] != ' ')
@@ -92,12 +87,10 @@ namespace Compiler.Controllers
                     // Handeling Include
                     if(currentsState == (int)State.CF)
                     {
-                        //i -= 7;
-                        LinkerController.LinkFiles(ref code, i);
-                        token = "";
-                        currentsState = (int)State.A;
-                        acceptedState = false;
-                        //i -= 4;
+                        if (LinkerController.LinkFiles(code, ref i) == false)
+                        {
+                            initValues();
+                        }
                     }
                     else if (acceptedState)
                     {
@@ -110,16 +103,13 @@ namespace Compiler.Controllers
                             scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
 
-                        token = "";
-                        canBeConstant = true;
-                        acceptedState = false;
-                        currentsState = (int)State.A;
+                        initValues();
                         continue;
 
                     }
                     else if (currentsState==-1&& code[i] != ' ')
                     {
-                        checkIfIdentifierOrErrorValue();
+                        checkIfIdentifierOrErrorValue(filePath);
                     }
 
                 }
@@ -132,7 +122,6 @@ namespace Compiler.Controllers
                         currentsState = (int)validTransitions[(int)currentsState, code[i]];
                     }
                     
-                    //if(IsDigit(code[i]))currentsState=(int)State.O;
                     token += code[i];
                 }
                 else if (currentsState == -1 && code[i] != ' ')
@@ -142,32 +131,43 @@ namespace Compiler.Controllers
                 }
                 else
                 {
-                    checkIfIdentifierOrErrorValue();
+                    checkIfIdentifierOrErrorValue(filePath);
                 }
             }
-            scannerOutput.Add("Total NO of errors: " + totalErrors);
 
+            PrintNumErrors();
         }
 
+        public void PrintNumErrors()
+        {
+            scannerOutput.Add("Total NO of errors: " + totalErrors);
+        }
 
-        public void checkIfIdentifierOrErrorValue()
+        private void initValues()
+        {
+            token = "";
+            currentsState = (int)State.A;
+            acceptedState = false;
+            isComment = false;
+            canBeConstant = true;
+        }
+
+        public void checkIfIdentifierOrErrorValue(string filePath)
         {
             if(token.Length > 0)
             {
                 if (checkIdentifier(token))
                 {
                     scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
-                    LinkerController.AddIdentifier(token, null);
+                    LinkerController.AddIdentifier(token, filePath);
                 }
                 else
                 {
-
                     scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
                     totalErrors++;
                 }
-                token = "";
-                canBeConstant = true;
-                currentsState = (int)State.A;
+
+                initValues();
             }
         }
         public bool IsDigit(char token)
@@ -175,18 +175,6 @@ namespace Compiler.Controllers
             foreach ( char number in numbers)
             {
                 if (token == number) return true;
-            }
-            return false;
-        }
-        public bool IsRestrictedValue(string token)
-        {
-            foreach (char charater in restrictedValuesForToken)
-            {
-                foreach (char tokenChar in token)
-                {
-                    if (charater == tokenChar) return true;
-                }
-
             }
             return false;
         }
@@ -217,21 +205,17 @@ namespace Compiler.Controllers
 
         public ActionResult Index()
         {
-            scanCode("Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" 4444i444554 534223 5342i23 ");
+            Instance = this;
+            //State state = (State)83; // CF
+            scanCode("12i Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" 4444i444554 534223 ID 5342i23 ", null);
             foreach (String line in scannerOutput)
             {
                 Debug.WriteLine(line);
             }
 
-
-            LinkerController.GetIdentifierFilePath("Else");
-
+            Debug.WriteLine(LinkerController.GetIdentifierCode("ID3"));
 
             return View();
         }
-
-
-
-
     }
 }

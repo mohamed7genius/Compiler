@@ -1,84 +1,63 @@
-﻿using System;
+﻿using Compiler.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Web;
-using System.Web.Mvc;
 
 namespace Compiler.Models
 {
     public static class LinkerController
     {
-        public static Dictionary<string, string> IdentifierDict = new Dictionary<string, string>();
+        private static Dictionary<string, string> identifierDict = new Dictionary<string, string>();
 
-        public static void LinkFiles(ref String Code, int charIndex)
+        public static bool LinkFiles(string Code, ref int charIndex)
         {
-            StringBuilder outputString = new StringBuilder();
+            string newCode;
             StringBuilder filePath = new StringBuilder();
-            int startIndex = charIndex - 7;
-            int endIndex;
-            
+
             int numQuotes = 0;
 
             while (numQuotes < 2)
             {
-                if (numQuotes > 0)
+                if (Code[charIndex] != '\"')
                 {
                     filePath.Append(Code[charIndex]);
                 }
-
-                if (Code[charIndex++] == '\"')
+                else
                 {
                     numQuotes++;
                 }
+
+                charIndex++;
             }
 
-            endIndex = charIndex;
-            filePath.Replace("\"", "");
-
-            var lines = System.IO.File.ReadLines(filePath.ToString());
-
-            for (int i = 0; i < Code.Length; i++)
-            {
-                if (i < startIndex || i > endIndex)
-                {
-                    outputString.Append(Code[i]);
-                }
-                else if (i == startIndex)
-                {
-                    outputString.Append("       ");
-                    foreach (var line in lines)
-                    {
-                        outputString.Append(line + " \n ");
-                    }
-                }
-            }
-
-            foreach (string word in outputString.ToString().Split())
-            {
-                if(word == "Include")
-                {
-                    outputString.Remove(outputString.Length - 1, 1);
-                }
-            }
-
-            //Debug.WriteLine(outputString.ToString());
-
-            Code = outputString.ToString();
-        }
-
-        public static int AddIdentifier(string identifierName, string path)
-        {
             try
             {
-                IdentifierDict.Add(identifierName, path);
-                return 0;
+                newCode = File.ReadAllText(filePath.ToString());
             }
             catch (Exception)
             {
-                return 1;
+                return false;
+            }
+
+            ScannerController.Instance.scannerOutput.Add("--->" + filePath);
+            ScannerController.Instance.scanCode(newCode, filePath.ToString());
+            ScannerController.Instance.scannerOutput.Add("<---" + filePath);
+
+            return true;
+        }
+
+        public static bool AddIdentifier(string identifierName, string path)
+        {
+            try
+            {
+                identifierDict.Add(identifierName, path);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -86,11 +65,32 @@ namespace Compiler.Models
         {
             try
             {
-                return (IdentifierDict[identifierName]);
+                return (identifierDict[identifierName]);
             }
             catch (Exception)
             {
-                return null;
+                return "404";
+            }
+        }
+
+        public static string GetIdentifierCode(string identifierName)
+        {
+            string filePath = GetIdentifierFilePath(identifierName);
+
+            if (filePath == null || filePath == "404")
+            {
+                return filePath;
+            }
+            else
+            {
+                try
+                {
+                    return(File.ReadAllText(filePath.ToString()));
+                }
+                catch (Exception)
+                {
+                    return "404";
+                }
             }
         }
     }
