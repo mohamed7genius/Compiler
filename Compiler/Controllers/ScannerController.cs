@@ -45,7 +45,7 @@ namespace Compiler.Controllers
                 code += ' ';
             for (int i = 0; i < code.Length; i++)
             {
-                
+
                 if (code[i] == '\r')
                 {
                     continue;
@@ -173,7 +173,11 @@ namespace Compiler.Controllers
 
             }
 
-            PrintNumErrors();
+            if (filePath == null)
+            {
+                PrintNumErrors();
+            }
+            
         }
 
         public void PrintNumErrors()
@@ -272,7 +276,9 @@ namespace Compiler.Controllers
 
         public ActionResult Index()
         {
-            ScanCode("$$$ Iow " +"\n"+"fer",null);
+            Instance = this;
+
+            ScanCode("123i432 Include \"C:\\Users\\Mohammed Khalid\\Desktop\\test.txt\" SIow fds", null);
 
             foreach (String line in scannerOutput)
             {
