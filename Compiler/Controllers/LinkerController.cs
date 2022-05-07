@@ -35,6 +35,7 @@ namespace Compiler.Models
             try
             {
                 newCode = File.ReadAllText(filePath.ToString());
+                newCode = newCode.Replace("\r\n", " \r\n ");
             }
             catch (Exception)
             {
