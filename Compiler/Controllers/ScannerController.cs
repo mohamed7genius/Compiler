@@ -53,7 +53,7 @@ namespace Compiler.Controllers
                 if ((code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';' && code[i] != '\n' && !isComment && !LineComment))
                 {
                     //Debug.WriteLine(i + "char is : " + code[i]);
-                    setStart(i);
+                    SetStart(i);
 
                 }
                 //  handling comments
@@ -139,7 +139,6 @@ namespace Compiler.Controllers
                         }
                         SetEnd(i);
                         SetDetails();
-
                         InitValues();
                         continue;
 
@@ -236,7 +235,7 @@ namespace Compiler.Controllers
             return false;
         }
 
-        public void setStart (int i)
+        public void SetStart (int i)
         {
             if(startToken == -1)
             {
