@@ -42,7 +42,7 @@ namespace Compiler.Models
             }
 
             ScannerController.Instance.scannerOutput.Add("--->" + filePath);
-            ScannerController.Instance.scanCode(newCode, filePath.ToString());
+            ScannerController.Instance.ScanCode(newCode, filePath.ToString());
             ScannerController.Instance.scannerOutput.Add("<---" + filePath);
 
             return true;

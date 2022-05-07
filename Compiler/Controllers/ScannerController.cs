@@ -30,16 +30,15 @@ namespace Compiler.Controllers
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
-        public void scanCode(string code, string filePath)
-        int start = -1;
-        int end = -1;
+
+        int startToken = -1;
+        int endToken = -1;
 
         List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
 
-        List<String> scannerOutput = new List<string>();
-        public void scanCode(String code)
+        public void ScanCode(string code, string filePath)
         {
-            initValues();
+            InitValues();
 
             // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
             if (code[code.Length - 1] != ' ')
@@ -78,9 +77,9 @@ namespace Compiler.Controllers
                 if(LineComment && code[i]=='\n')
                 {
                     LineComment = false;
-                    setEnd(i);
-                    token = new String(code.ToCharArray(), start, end);
-                    setDetails();
+                    SetEnd(i);
+                    token = new String(code.ToCharArray(), startToken, endToken);
+                    SetDetails();
                     token = "";
                     lineNumber++;
                     continue;
@@ -125,7 +124,7 @@ namespace Compiler.Controllers
                     {
                         if (LinkerController.LinkFiles(code, ref i) == false)
                         {
-                            initValues();
+                            InitValues();
                         }
                     }
                     else if (acceptedState)
@@ -138,16 +137,16 @@ namespace Compiler.Controllers
                         {
                             scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
-                        setEnd(i);
-                        setDetails();
+                        SetEnd(i);
+                        SetDetails();
 
-                        initValues();
+                        InitValues();
                         continue;
 
                     }
                     else if (currentsState == -1 && code[i] != ' ')
                     {
-                        checkIfIdentifierOrErrorValue(filePath,i);
+                        CheckIfIdentifierOrErrorValue(filePath,i);
                     }
 
                 }
@@ -169,7 +168,7 @@ namespace Compiler.Controllers
                 }
                 else
                 {
-                    checkIfIdentifierOrErrorValue(filePath,i);
+                    CheckIfIdentifierOrErrorValue(filePath,i);
                 }
 
             }
@@ -182,7 +181,7 @@ namespace Compiler.Controllers
             scannerOutput.Add("Total NO of errors: " + totalErrors);
         }
 
-        private void initValues()
+        private void InitValues()
         {
             token = "";
             currentsState = (int)State.A;
@@ -191,11 +190,11 @@ namespace Compiler.Controllers
             canBeConstant = true;
         }
 
-        public void checkIfIdentifierOrErrorValue(string filePath,int i)
+        public void CheckIfIdentifierOrErrorValue(string filePath,int i)
         {
             if (token.Length > 0)
             {
-                if (checkIdentifier(token))
+                if (CheckIdentifier(token))
                 {
                     scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
                     LinkerController.AddIdentifier(token, filePath);
@@ -206,9 +205,9 @@ namespace Compiler.Controllers
                     totalErrors++;
                 }
 
-                initValues();
-                setEnd(i);
-                setDetails();
+                InitValues();
+                SetEnd(i);
+                SetDetails();
             }
         }
         public bool IsDigit(char token)
@@ -220,7 +219,7 @@ namespace Compiler.Controllers
             return specialCharacters.Contains(token);
         }
 
-        public bool checkIdentifier(string token)
+        public bool CheckIdentifier(string token)
         {
             bool flag = false;
             for (int i = 1; i <= token.Length; i++)
@@ -239,14 +238,14 @@ namespace Compiler.Controllers
 
         public void setStart (int i)
         {
-            if(start == -1)
+            if(startToken == -1)
             {
-                start = i ;
+                startToken = i ;
             }
-            else if (end != -1)
+            else if (endToken != -1)
             {
-                start = i;
-                end = -1;
+                startToken = i;
+                endToken = -1;
                 //Debug.WriteLine("---------end = " + end);
 
             }
@@ -254,26 +253,26 @@ namespace Compiler.Controllers
             //Debug.WriteLine("start = " + start);
         }
 
-        public void setEnd (int i)
+        public void SetEnd (int i)
         {
-            end = i;
+            endToken = i;
             //Debug.WriteLine("IIend = "+i);
             //Debug.WriteLine("end = " + end);
         }
 
-        public void setDetails ()
+        public void SetDetails ()
         {
             Tokens.Add(new Dictionary<string, string>()
             {
                 { "Name", token },
-                { "Start", start.ToString() },
-                { "End", end.ToString() }
+                { "Start", startToken.ToString() },
+                { "End", endToken.ToString() }
             });
         }
 
         public ActionResult Index()
         {
-            scanCode("$$$ Iow " +"\n"+"fer");
+            ScanCode("$$$ Iow " +"\n"+"fer",null);
 
             foreach (String line in scannerOutput)
             {
