@@ -284,6 +284,7 @@ namespace Compiler.Controllers
                 Debug.WriteLine(line);
             }
 
+
             foreach (var Tok in Tokens)
             {
                 foreach (var item in Tok)
