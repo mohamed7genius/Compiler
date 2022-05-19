@@ -91,7 +91,7 @@ namespace Compiler.Models
             "$(comment)",
             "/",
             "{",
-            "$(Follow)",
+            "#",
             ")",
             ",",
             "}",
