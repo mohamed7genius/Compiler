@@ -8,19 +8,19 @@
     "net6.0": []
   },
   "packageFolders": {
-    "C:\\Users\\mohamed\\.nuget\\packages\\": {}
+    "C:\\Users\\Mohammed Khalid\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\CompilerCore\\Compiler\\Compiler.csproj",
+      "projectUniqueName": "E:\\Projects\\ASP\\Projects\\Compiler\\Compiler\\Compiler.csproj",
       "projectName": "Compiler",
-      "projectPath": "D:\\CompilerCore\\Compiler\\Compiler.csproj",
-      "packagesPath": "C:\\Users\\mohamed\\.nuget\\packages\\",
-      "outputPath": "D:\\CompilerCore\\Compiler\\obj\\",
+      "projectPath": "E:\\Projects\\ASP\\Projects\\Compiler\\Compiler\\Compiler.csproj",
+      "packagesPath": "C:\\Users\\Mohammed Khalid\\.nuget\\packages\\",
+      "outputPath": "E:\\Projects\\ASP\\Projects\\Compiler\\Compiler\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\mohamed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Mohammed Khalid\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -63,7 +63,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
       }
     }
   }

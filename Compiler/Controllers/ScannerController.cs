@@ -19,128 +19,112 @@ namespace Compiler.Controllers
         };
         string token;
         int[,] validTransitions = TransitionTable.init();
-        int currentsState;
+        int currentState;
         int lineNumber = 1;
         int totalErrors = 0;
         bool isComment = false;
-        bool LineComment = false;
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
 
-        int startToken = -1;
-        int endToken = -1;
+        int tokenStartIndex = -1;
+        int tokenEndIndex = -1;
+
+        const int CONSTANT_STATE = (int)State.O;
+        const int INCLUDE_STATE = (int)State.CF;
+        const int INVALID_STATE = -1;
 
         List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
 
-        public void ScanCode(string code, string filePath)
+        public void ScanCode(string code, string? filePath)
         {
             InitValues();
 
-            // DIRTY SOULTION AHEAD TO FIX HAVING TO WRITE A WHITESPACE AT THE END OF (code) ARRAY
-            if (code[code.Length - 1] != ' ')
-                code += ' ';
+            AppendSpaceToString(ref code);
+
             for (int i = 0; i < code.Length; i++)
             {
-
-                if (code[i] == '\r')
-                {
-                    continue;
-                }
-                if ((code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';' && code[i] != '\n' && !isComment && !LineComment))
-                {
-                    //Debug.WriteLine(i + "char is : " + code[i]);
-                    SetStart(i);
-
-                }
                 //  handling comments
                 if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
                 {
                     isComment = true;
                     continue;
                 }
-                if (isComment && code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+                if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
                 {
-                    isComment = false;
-                    i++;
-                    continue;
-                }
-                if (code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
-                {
-                    LineComment = true;
+                    isComment = true;
                     i += 2;
                     continue;
                 }
-                if (LineComment && code[i] == '\n')
+                if (isComment)
                 {
-                    LineComment = false;
-                    SetEnd(i);
-                    token = new String(code.ToCharArray(), startToken, endToken);
-                    SetDetails();
-                    token = "";
-                    lineNumber++;
+                    if (code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+                    {
+                        isComment = false;
+                        i++;
+                    }
+                    if (code[i] == '\n')
+                    {
+                        isComment = false;
+                        SetTokenEndIndex(i);
+                        token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
+                        SetTokenDetails();
+                        token = "";
+                        lineNumber++;
+                    }
+
                     continue;
                 }
-                if (isComment || LineComment) continue;
+
                 //--------------------------------
                 //handeling the end of the line
-                if (code[i] == '\n')
+                if (EndOfLine(code[i]))
                 {
-                    lineNumber++;
                     continue;
                 }
                 //--------------------------------
-                //checking the constant
-                if (canBeConstant && token.Length != 0 && IsDigit(token[0]) && code[i - 1] != ' ')
+                //setting index of the beginning of each token
+                if (code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
-                    if (!IsDigit(code[i - 1]))
-                    {
-                        currentsState = -1;
-                        canBeConstant = false;
-                    }
-                    else
-                    {
-                        currentsState = (int)State.O;
-                    }
+                    //Debug.WriteLine(i + "char is : " + code[i]);
+                    SetTokenStartIndex(i);
+                }
+
+                //--------------------------------
+                //checking the constant
+                if (canBeConstant && token.Length != 0)
+                {
+                    CheckConstant(code, token, i);
                 }
                 //--------------------------------
                 //handeling spaces
-                if ((code[i] == ' ' || code[i] == '\t') || code[i] == ',' || code[i] == ';' || (i == code.Length - 1))
+                if (code[i] == ' ' || code[i] == '\t' || code[i] == ',' || code[i] == ';' || (i == code.Length - 1))
                 {
+                    SkipSpaces(code, ref i);
 
-                    while (i < code.Length - 1 && code[i + 1] == ' ')
-                    {
-                        i++;
-                    }
-                    foreach (State state in States.acceptedStates)
-                    {
-                        if (state == (State)currentsState) acceptedState = true;
-                    }
+                    CheckAcceptedState();
                     // Handeling Include
-                    if (currentsState == (int)State.CF)
+                    if (currentState == INCLUDE_STATE)
                     {
-                        if (Linker.LinkFiles(code, ref i) == false)
-                        {
-                            InitValues();
-                        }
+                        Include(code, ref i);
                     }
                     else if (acceptedState)
                     {
-                        if (currentsState == (int)State.O)
+                        if (currentState == CONSTANT_STATE)
                         {
-                            scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
+                            AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
+                            //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
                         }
                         else
                         {
-                            scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
+                            AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
+                            //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
-                        SetEnd(i);
-                        SetDetails();
+                        SetTokenEndIndex(i);
+                        SetTokenDetails();
                         InitValues();
-                        continue;
-
                     }
-                    else if (currentsState == -1 && code[i] != ' ')
+                    else if (!CheckValidState() && code[i] != ' ')
                     {
                         CheckIfIdentifierOrErrorValue(filePath, i);
                     }
@@ -148,25 +132,22 @@ namespace Compiler.Controllers
                 }
 
                 //translating throught transition table
-                if (currentsState != -1 && code[i] != ' ')
-                {
-                    if (currentsState != (int)State.O)
-                    {
-                        currentsState = (int)validTransitions[(int)currentsState, code[i]];
-                    }
-
-                    token += code[i];
-                }
-                else if (currentsState == -1 && code[i] != ' ')
-                {
-                    token += code[i];
-                    continue;
-                }
-                else
+                if (code[i] == ' ' || code[i] == (char)160)
                 {
                     CheckIfIdentifierOrErrorValue(filePath, i);
                 }
+                else
+                {
+                    token += code[i];
 
+                    if (CheckValidState())
+                    {
+                        if (currentState != CONSTANT_STATE)
+                        {
+                            currentState = (int)validTransitions[(int)currentState, code[i]];
+                        }
+                    }
+                }
             }
 
             if (filePath == null)
@@ -174,6 +155,78 @@ namespace Compiler.Controllers
                 PrintNumErrors();
             }
 
+        }
+
+        private static void AppendSpaceToString(ref string str)
+        {
+            if (str[str.Length - 1] != ' ')
+                str += ' ';
+        }
+
+        private void CheckAcceptedState()
+        {
+            foreach (State state in States.acceptedStates)
+            {
+                if ((State)currentState == state)
+                {
+                    acceptedState = true;
+                }
+            }
+        }
+
+        private bool CheckValidState()
+        {
+            return currentState != INVALID_STATE;
+        }
+
+        private static void SkipSpaces(string code, ref int i)
+        {
+            while (i < code.Length - 1 && code[i + 1] == ' ')
+            {
+                i++;
+            }
+        }
+
+        private bool EndOfLine(char character)
+        {
+            if (character == '\r')
+            {
+                return true;
+            }
+            if (character == '\n')
+            {
+                lineNumber++;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void Include(string code, ref int i)
+        {
+            if (Linker.LinkFiles(code, ref i) == false)
+            {
+                InitValues();
+            }
+        }
+
+        private void CheckConstant(string code, string token, int currentCodeIndex)
+        {
+            char firstCharInToken = token[0];
+            char currentChar = code[currentCodeIndex - 1];
+
+            if (IsDigit(firstCharInToken) && currentChar != ' ')
+            {
+                if (IsDigit(currentChar))
+                {
+                    currentState = (int)State.O;
+                }
+                else
+                {
+                    currentState = INVALID_STATE;
+                    canBeConstant = false;
+                }
+            }
         }
 
         public void PrintNumErrors()
@@ -184,31 +237,38 @@ namespace Compiler.Controllers
         private void InitValues()
         {
             token = "";
-            currentsState = (int)State.A;
+            currentState = (int)State.A;
             acceptedState = false;
             isComment = false;
             canBeConstant = true;
         }
 
-        public void CheckIfIdentifierOrErrorValue(string filePath, int i)
+        public void CheckIfIdentifierOrErrorValue(string? filePath, int i)
         {
             if (token.Length > 0)
             {
                 if (CheckIdentifier(token))
                 {
-                    scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
+                    AddMessageToOutput("Token Text: " + token + "      " + "IDENTIFIER");
+                    //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
                     Linker.AddIdentifier(token, filePath);
                 }
                 else
                 {
-                    scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
+                    AddMessageToOutput("Error in Token :" + token);
+                    //scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
                     totalErrors++;
                 }
 
                 InitValues();
-                SetEnd(i);
-                SetDetails();
+                SetTokenEndIndex(i);
+                SetTokenDetails();
             }
+        }
+        
+        private void AddMessageToOutput(string message)
+        {
+            scannerOutput.Add("Line :" + lineNumber + " " + message);
         }
         public bool IsDigit(char token)
         {
@@ -236,16 +296,16 @@ namespace Compiler.Controllers
             return false;
         }
 
-        public void SetStart(int i)
+        public void SetTokenStartIndex(int i)
         {
-            if (startToken == -1)
+            if (tokenStartIndex == -1)
             {
-                startToken = i;
+                tokenStartIndex = i;
             }
-            else if (endToken != -1)
+            else if (tokenEndIndex != -1)
             {
-                startToken = i;
-                endToken = -1;
+                tokenStartIndex = i;
+                tokenEndIndex = -1;
                 //Debug.WriteLine("---------end = " + end);
 
             }
@@ -253,20 +313,20 @@ namespace Compiler.Controllers
             //Debug.WriteLine("start = " + start);
         }
 
-        public void SetEnd(int i)
+        public void SetTokenEndIndex(int i)
         {
-            endToken = i;
+            tokenEndIndex = i;
             //Debug.WriteLine("IIend = "+i);
             //Debug.WriteLine("end = " + end);
         }
 
-        public void SetDetails()
+        public void SetTokenDetails()
         {
             Tokens.Add(new Dictionary<string, string>()
             {
                 { "Name", token },
-                { "Start", startToken.ToString() },
-                { "End", endToken.ToString() }
+                { "Start", tokenStartIndex.ToString() },
+                { "End", tokenEndIndex.ToString() }
             });
         }
 
