@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ToyQBkTFMrzKluuHuBKmiWU65qkNAVL7rg5oUqrc6TE=",
+  "Hash": "PlYtQ6zzPGdtXhInm5t+3eFGL/8iGo1EUDXT8vpHUZM=",
   "Source": "Compiler",
   "BasePath": "_content/Compiler",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "Compiler\\wwwroot",
       "Source": "Compiler",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\Compiler.styles.css",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\Compiler.styles.css",
       "SourceId": "Compiler",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "Compiler.styles.css",
       "AssetKind": "All",
@@ -31,13 +31,13 @@
       "AssetTraitValue": "ApplicationBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\Compiler.styles.css"
+      "OriginalItemSpec": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\bundle\\Compiler.styles.css"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\Compiler.bundle.scp.css",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\Compiler.bundle.scp.css",
       "SourceId": "Compiler",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "Compiler.bundle.scp.css",
       "AssetKind": "All",
@@ -48,13 +48,13 @@
       "AssetTraitValue": "ProjectBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\Compiler.bundle.scp.css"
+      "OriginalItemSpec": "D:\\projects\\Compiler\\Compiler\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\Compiler.bundle.scp.css"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\css\\site.css",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\wwwroot\\css\\site.css",
       "SourceId": "Compiler",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "css/site.css",
       "AssetKind": "All",
@@ -68,10 +68,10 @@
       "OriginalItemSpec": "wwwroot\\css\\site.css"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\favicon.ico",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\wwwroot\\favicon.ico",
       "SourceId": "Compiler",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "favicon.ico",
       "AssetKind": "All",
@@ -85,10 +85,10 @@
       "OriginalItemSpec": "wwwroot\\favicon.ico"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\fonts\\Nunito-ExtraBold.ttf",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\wwwroot\\fonts\\Nunito-ExtraBold.ttf",
       "SourceId": "Compiler",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "fonts/Nunito-ExtraBold.ttf",
       "AssetKind": "All",
@@ -102,10 +102,10 @@
       "OriginalItemSpec": "wwwroot\\fonts\\Nunito-ExtraBold.ttf"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\fonts\\Nunito-Light.ttf",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\wwwroot\\fonts\\Nunito-Light.ttf",
       "SourceId": "Compiler",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "fonts/Nunito-Light.ttf",
       "AssetKind": "All",
@@ -119,10 +119,10 @@
       "OriginalItemSpec": "wwwroot\\fonts\\Nunito-Light.ttf"
     },
     {
-      "Identity": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\js\\main.js",
+      "Identity": "D:\\projects\\Compiler\\Compiler\\wwwroot\\js\\main.js",
       "SourceId": "Compiler",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\wwwroot\\",
+      "ContentRoot": "D:\\projects\\Compiler\\Compiler\\wwwroot\\",
       "BasePath": "_content/Compiler",
       "RelativePath": "js/main.js",
       "AssetKind": "All",
