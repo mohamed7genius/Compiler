@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects\\Compiler\\Compiler\\Compiler.csproj": {}
+    "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\Compiler.csproj": {}
   },
   "projects": {
-    "D:\\projects\\Compiler\\Compiler\\Compiler.csproj": {
+    "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\Compiler.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects\\Compiler\\Compiler\\Compiler.csproj",
+        "projectUniqueName": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\Compiler.csproj",
         "projectName": "Compiler",
-        "projectPath": "D:\\projects\\Compiler\\Compiler\\Compiler.csproj",
-        "packagesPath": "C:\\Users\\Mo88m\\.nuget\\packages\\",
-        "outputPath": "D:\\projects\\Compiler\\Compiler\\obj\\",
+        "projectPath": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\Compiler.csproj",
+        "packagesPath": "C:\\Users\\moham\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Mo88m\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\moham\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
