@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "IzL+UmrgZQq/uUZnBvsmWm71aXTuP15DqtYco9WlPCNmOQyDYSD+VFEh0XHU3vnjgocETTT6PlWU9YkUNy0N5w==",
+  "dgSpecHash": "1B2S8HTaZE8RZVQ4cXXCLnqGeJHK5cNiLYfAEK9AQU92G7KGx0ttEPTfVQn8Sxsmm3C6Qv3F6js+v6OnWRBk3Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\moham\\Desktop\\FCIH\\6\\Compilers\\Project\\Core\\Compiler\\Compiler\\Compiler.csproj",
+  "projectFilePath": "D:\\CompilerCore\\Compiler\\Compiler.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
