@@ -13,87 +13,131 @@ const message = document.getElementById('message');
 // Global Vars
 let scannerData;
 
-const getCaretPosition = () => {
-    if (window.getSelection) {
-        return {
-            'offset': window.getSelection().anchorOffset,
-            'e': window.getSelection().anchorNode,
-            'range': JSON.stringify(window.getSelection().getRangeAt(0)),
-        };
-    }
-};
-
-const setCaretPosition = (oldCaretPosition) => {
-    if (window.getSelection) {
-        const selection = window.getSelection();
-        const range = document.createRange();
-        try {
-            range.setStartAfter(editor.lastChild);
-        } catch (error) {
-            console.warn('::The line is empty::');
-        }
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        console.log('test', oldCaretPosition.e instanceof HTMLElement, oldCaretPosition.e);
-        if (oldCaretPosition.e instanceof HTMLElement) {
-            oldCaretPosition.e.focus();
-        } else {
-            // First Line
-            editor.focus();
-        }
-    }
-};
-
 const reloadEditorData = () => {
-    const oldCaretPosition = getCaretPosition();
+    let offset = Cursor.getCurrentCursorPosition(editor);
+
+    //const oldCaretPosition = getCaretPosition();
+
     const beforeEditingHtml = editor.innerHTML;
 
-    editor.innerHTML = editor.innerHTML.replaceAll(new RegExp(/<span style="color: #00cec9;">/, 'g'), '');
+    // Remove all spans and styles 
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<span (.*?)>/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(text)/, 'g'), "<span style='color: #00cec9;'>text</span>");
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
+
+    // Init keywords colors
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(If)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Else)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Include)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkGreen);'>${c.trim()}</span>`));
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Loopwhen)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iteratewhen)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Turnback)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Stop)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iow)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(SIow)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Chlo)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Chain)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iowf)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(SIowf)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Worthless)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Loli)(\&nbsp\;| |))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkBlue);'>${c.trim()}</span>`));
+
+    let editorHTML = editor.innerHTML.split('<div>');
+    var start = false;
+
+    for (let i = 0; i < editorHTML.length; i++) {
+
+        console.log('test', editorHTML[i]);
+
+        // Single Line Comment
+        if (editorHTML[i].includes('$$$')) {
+            let startIndex = editorHTML[i].indexOf('$$$');
+            // Remove any other spans/colors in the commented text
+            let relpacedHTML = editorHTML[i].substring(startIndex).replace(new RegExp(/style="(.*?)">/, 'g'), '');
+            // Add comment style
+            editorHTML[i] = `${editorHTML[i].substring(0, startIndex)}<span style='color: var(--commentColor);'>${relpacedHTML}</span>`;
+        }
+
+        if (editorHTML[i].indexOf('/$') != -1) {
+            start = true;
+        }
+
+        if (start) {
+
+            // Remove any other spans/colors in the commented text
+            editorHTML[i] = editorHTML[i].replace(new RegExp(/<span (.*?)>/, 'g'), '');
+            editorHTML[i] = editorHTML[i].replace(new RegExp(/<\/span>/, 'g'), '');
+
+            if (editorHTML[i].indexOf('/$') != -1 && editorHTML[i].indexOf('$/') != -1) {
+                // Same line
+                let startIndex = editorHTML[i].indexOf('/$');
+                let endIndex = editorHTML[i].indexOf('$/') + 2;
+                editorHTML[i] = `${editorHTML[i].substring(0, startIndex)}<span style='color: var(--commentColor);'>${editorHTML[i].substring(startIndex, endIndex)}</span>${editorHTML[i].substring(endIndex)}`;
+            } else if (editorHTML[i].indexOf('/$') != -1) {
+                // Only start in on this line
+                let startIndex = editorHTML[i].indexOf('/$');
+                editorHTML[i] = `${editorHTML[i].substring(0, startIndex)}<span style='color: var(--commentColor);'>${editorHTML[i].substring(startIndex)}</span>`;
+            } else if (editorHTML[i].indexOf('$/') != -1) {
+                // only end is on this line
+                let endIndex = editorHTML[i].indexOf('$/') + 2;
+                editorHTML[i] = `<span style='color: var(--commentColor);'>${editorHTML[i].substring(0, endIndex)}</span>${editorHTML[i].substring(endIndex)}`;
+            } else {
+                // the line is commented completely
+                editorHTML[i] = `<span style='color: var(--commentColor);'>${editorHTML[i]}</span>`;
+            }
+
+        }
+
+        if (editorHTML[i].indexOf('$/') != -1) {
+            start = false;
+        }
+    }
+
+    editor.innerHTML = editorHTML.join('<div>');
+
 
     if (beforeEditingHtml !== editor.innerHTML) {
         // There's a change happend
         console.log('♻️');
     }
 
-    setCaretPosition(oldCaretPosition);
+    Cursor.setCurrentCursorPosition(offset, editor);
+    editor.focus();
+    //setCaretPosition(oldCaretPosition);
 };
 
 editor.addEventListener('input', (e) => {
-    // getMainText();
-    // Don't depend of length of child filter it first i.e remove the span children from the count
-    /*     const length = [...editor.children].map( el => {
-            console.log('NodeName: ', el.nodeName, el.nodeName != 'SPAN');
-            return el.nodeName != 'SPAN'
-        }).length;
-        console.log('testor ', length, ' total ', editor.children.length); */
-    generateLines(editor.children.length);
-
+    generateLines();
     reloadEditorData();
-
 });
 
 editor.addEventListener('keypress', (e) => {
 
-    const key = e.code;
+    const key = e.key;
+
+    //console.log(e);
+
+    if (key == '\n') {
+        // Auto Complete
+        console.log('complete it !');
+    }
 
     if (key == 'Enter') {
-        // const newElement = document.createElement('div');
-        // editor.appendChild(newElement);
-        const selection = window.getSelection();
+        /* const newElement = document.createElement('div');
+        editor.appendChild(newElement); */
+        /* const selection = window.getSelection();
         const range = document.createRange();
-        range.setStartAfter(editor.lastChild);
+        range.setStartAfter(editor.lastChild, 0);
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
-        if (!(editor.lastChild instanceof HTMLElement)) {
-            // Then it's the first line
-            editor.focus();
-        } else {
-            editor.lastChild.focus();
-        }
+        editor.focus(); */
     }
 });
 
@@ -106,7 +150,15 @@ const getMainText = () => {
     return editor.innerText;
 };
 
-const generateLines = (length) => {
+const generateLines = () => {
+    let length = 0;
+    // To fix lines on paste , count the divs inside other divs
+    [...editor.children].forEach(el => {
+        if (el.tagName != 'SPAN') {
+            length++;
+        }
+    });
+
     if (length === 0 && numOfLines.children.length === 0) {
         // There's at least one line
         // Create New Number
@@ -136,32 +188,171 @@ const generateLines = (length) => {
 
 // Cancel the default paste and paste it as a text
 editor.addEventListener('paste', (e) => {
-    e.preventDefault();
+    /* e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertHTML', false, text);
+    document.execCommand('insertHTML', false, text); */
     reloadEditorData();
+    generateLines();
 });
 
 // Toolbar Buttons 
 
 const comment = () => {
+    const range = window.getSelection().getRangeAt(0);
+    let offset = Cursor.getCurrentCursorPosition(editor);
 
+    if (range) {
+        console.log(range, window.getSelection().rangeCount);
+        const startContainerText = range.startContainer.nodeValue.trim();
+        const endContainerText = range.endContainer.nodeValue.trim();
+
+        const startPoint = range.startOffset;
+        const endPoint = range.endOffset;
+
+        // On the same line
+        if (startContainerText == endContainerText) {
+            const textToReplace = startContainerText.substring(startPoint, endPoint).trim();
+
+            for (let i = 0; i < editor.childNodes.length; i++) {
+                let child = editor.childNodes[i];
+                if (!child) {
+                    continue;
+                }
+
+                if (child.nodeValue) {
+                    if (editor.childNodes[i].nodeValue.includes(startContainerText)) {
+                        editor.childNodes[i].nodeValue = editor.childNodes[i].nodeValue.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
+                        break;
+                    }
+                } else if (child.innerText) {
+                    if (editor.innerText[i].nodeValue.includes(startContainerText)) {
+                        editor.innerText[i].nodeValue = editor.innerText[i].nodeValue.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
+                        break;
+                    }
+                }
+
+            }
+
+            Cursor.setCurrentCursorPosition(offset, editor);
+            editor.focus();
+            reloadEditorData();
+            return;
+        }
+
+        // On multi lines
+        const startTextToReplace = startContainerText.substring(startPoint).trim();
+        const endTextToReplace = endContainerText.substring(0, endPoint).trim();
+
+        console.log('Text ', startTextToReplace, endTextToReplace)
+
+        for (let i = 0; i < editor.childNodes.length; i++) {
+            let child = editor.childNodes[i];
+            console.log(child.nodeValue || child.innerText)
+            if (!child) {
+                continue;
+            }
+
+            if (child.nodeValue) {// Comment Open Tag
+                if (child.nodeValue.includes(startTextToReplace)) {
+                    console.log('Test Start')
+                    child.nodeValue = ` /$ ${child.nodeValue}`;
+                }
+
+                // Comment Close Tag
+                if (child.nodeValue.includes(endTextToReplace)) {
+                    console.log('Test End')
+                    child.nodeValue = `${child.nodeValue} $/ `;
+                    break;
+                }
+            } else if (child.innerText) {
+                // Comment Open Tag
+                if (child.innerText.includes(startTextToReplace)) {
+                    console.log('Test Start')
+                    child.innerText = ` /$ ${child.innerText}`;
+                }
+
+                // Comment Close Tag
+                if (child.innerText.includes(endTextToReplace)) {
+                    console.log('Test End')
+                    child.innerText = `${child.innerText} $/ `;
+                    break;
+                }
+            }
+
+        }
+    }
+
+    Cursor.setCurrentCursorPosition(offset, editor);
+    editor.focus();
+
+    reloadEditorData();
+
+    // editor.innerHTML = editor.innerHTML.replace(document.getSelection().focusNode.data, newTd);
+    // document.execCommand('bold', false, newTd);
 };
 
 const unComment = () => {
+    const range = window.getSelection().getRangeAt(0);
+    let offset = Cursor.getCurrentCursorPosition(editor);
+    if (range) {
+        console.log(range, window.getSelection().rangeCount);
+        const startContainerText = range.startContainer.nodeValue.trim();
+        const endContainerText = range.endContainer.nodeValue.trim();
 
+        const startPoint = range.startOffset;
+        const endPoint = range.endOffset;
+
+        let editorText = editor.innerText.split('\n');
+
+        for (let i = 0; i < editorText.length; i++) {
+            // On the same line
+            if (startContainerText == endContainerText && editorText[i].includes(startContainerText) && editorText[i].includes(endContainerText)) {
+                editorText[i] = editorText[i].replace(new RegExp(/\/\$/, 'g'), '');
+                editorText[i] = editorText[i].replace(new RegExp(/\$\//, 'g'), '');
+                break;
+            }
+
+            // Comment Open Tag
+            if (editorText[i].includes(startContainerText)) {
+                editorText[i] = editorText[i].replace(new RegExp(/\/\$/, 'g'), '');
+            }
+
+            // Comment Close Tag
+            if (editorText[i].includes(endContainerText)) {
+                editorText[i] = editorText[i].replace(new RegExp(/\$\//, 'g'), '');
+                break;
+            }
+        }
+
+        editor.innerText = editorText.join('\n');
+    }
+
+    Cursor.setCurrentCursorPosition(offset, editor);
+    editor.focus();
+
+    reloadEditorData();
 };
 
 const scan = () => {
     // Set Loading true
     displayLoading();
 
-    // Send Post Req to Scanner
     const code = getMainText();
-    const formData = new FormData();
-    formData.append('code', code);
 
-    console.log('Main Data', code);
+    // Check the text
+    if (code == '' || code == null) {
+        // Display error message
+        displayMessage(`There's an error! Please write a code to debug!`);
+
+        hideLoading();
+        return;
+    }
+
+    // Send Post Req to Scanner
+    const formData = new FormData();
+    formData.append('code', `${code} `);
+
+
     fetch(`${location.origin}/Scanner`, {
         method: 'POST',
         body: formData,
@@ -304,3 +495,94 @@ const displayMessage = (messageText) => {
         message.style.transform = `translate(-50%, -30vh)`;
     }, 5000);
 };
+
+
+// Credit to Liam (Stack Overflow)
+// https://stackoverflow.com/a/41034697/3480193
+class Cursor {
+    static getCurrentCursorPosition(parentElement) {
+        var selection = window.getSelection(),
+            charCount = -1,
+            node;
+
+        if (selection.focusNode) {
+            if (Cursor._isChildOf(selection.focusNode, parentElement)) {
+                node = selection.focusNode;
+                charCount = selection.focusOffset;
+
+                while (node) {
+                    if (node === parentElement) {
+                        break;
+                    }
+
+                    if (node.previousSibling) {
+                        node = node.previousSibling;
+                        charCount += node.textContent.length;
+                    } else {
+                        node = node.parentNode;
+                        if (node === null) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return charCount;
+    }
+
+    static setCurrentCursorPosition(chars, element) {
+        if (chars >= 0) {
+            var selection = window.getSelection();
+
+            let range = Cursor._createRange(element, { count: chars });
+
+            if (range) {
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    }
+
+    static _createRange(node, chars, range) {
+        if (!range) {
+            range = document.createRange()
+            range.selectNode(node);
+            range.setStart(node, 0);
+        }
+
+        if (chars.count === 0) {
+            range.setEnd(node, chars.count);
+        } else if (node && chars.count > 0) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (node.textContent.length < chars.count) {
+                    chars.count -= node.textContent.length;
+                } else {
+                    range.setEnd(node, chars.count);
+                    chars.count = 0;
+                }
+            } else {
+                for (var lp = 0; lp < node.childNodes.length; lp++) {
+                    range = Cursor._createRange(node.childNodes[lp], chars, range);
+
+                    if (chars.count === 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return range;
+    }
+
+    static _isChildOf(node, parentElement) {
+        while (node !== null) {
+            if (node === parentElement) {
+                return true;
+            }
+            node = node.parentNode;
+        }
+
+        return false;
+    }
+}
