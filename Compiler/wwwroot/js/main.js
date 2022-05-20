@@ -9,6 +9,7 @@ const hiddenOutput = document.getElementById('hiddenOutput');
 const file = document.getElementById('file');
 const formSubmitBtn = document.getElementById('formSubmitBtn');
 const message = document.getElementById('message');
+const autoCompleteContainer = document.getElementById('autoCompleteContainer');
 
 // Global Vars
 let scannerData;
@@ -121,7 +122,13 @@ editor.addEventListener('input', (e) => {
     reloadEditorData();
 });
 
-editor.addEventListener('keypress', (e) => {
+const printing = (el) => {
+    console.log('Called ', el);
+    editor.innerHTML += el;
+    document.execCommand('insertHTML', false, el);
+}
+
+editor.addEventListener('keypress', async (e) => {
 
     const key = e.key;
 
@@ -130,6 +137,32 @@ editor.addEventListener('keypress', (e) => {
     if (key == '\n') {
         // Auto Complete
         console.log('complete it !');
+        // Fetch the data
+        const res = await fetch(`${location.origin}/Editor/GetAutoCompleteID`, {
+            method: 'GET',
+        });
+
+        const data = await res.json();
+
+        let autoCompleteData;
+
+        
+
+        if (data.status == 200) {
+            autoCompleteData = Object.keys(data.data);
+            console.log(autoCompleteData);
+            // Pop up to select from
+            console.log(autoCompleteContainer);
+            autoCompleteContainer.innerHTML = '';
+            autoCompleteData.forEach(el => {
+                let newElement = document.createElement('li');
+                newElement.innerText = el;
+                newElement.setAttribute('onclick', `printing('${el}')`);
+                autoCompleteContainer.appendChild(newElement);
+            });
+            autoCompleteContainer.style.transform = 'scaleZ(1)';
+            // document.execCommand('insertHTML', false, "Mohamed");
+        }
     }
 
     if (key == 'Enter') {
@@ -493,21 +526,25 @@ const scanHiddenFile = () => {
             // Stop the loading
             hideLoading();
             if (res.status == 200) {
-                scannerData = res.tokens;
+                scannerHiddenFile = res.tokens;
                 console.log(res);
                 // remove old elements
-                output.innerHTML = '<h2>Comiler : </h2><button onclick="closeOutput()">Close</button>';
+                hiddenOutput.innerHTML = '<h2>Compiler : </h2>';
                 // Display output and it's data
                 res.output.forEach(el => {
                     let newElement = document.createElement('div');
                     newElement.innerText = el;
-                    output.appendChild(newElement);
+                    hiddenOutput.appendChild(newElement);
                 });
-                output.style.transform = 'translateY(0)';
+                hiddenOutput.style.display = 'block';
                 console.log(scannerData);
+            } else if (res.status == 400) {
+                // Display error message
+                console.log('Error! 2');
+                displayMessage(`There's an error! The file cann't be empty!`);
             } else {
                 // Display error message
-                displayMessage(`There's an error while scanning your code, please try again`);
+                displayMessage(`There's an error while scanning your file, please try again`);
             }
         }).catch(e => {
             // Stop the loading
@@ -519,10 +556,19 @@ const scanHiddenFile = () => {
 
 const parseHiddenFile = () => {
     // Set Loading true
-    displayLoading()
+    displayLoading();
+
+    // No scanner data
+    if (!scannerHiddenFile) {
+        // Display error message
+        displayMessage(`There's an error! Please scan your file first!`);
+
+        hideLoading();
+        return;
+    }
 
     // Send Post Req to Parser 
-    console.log('Main Data', scannerData);
+    console.log('Parser Data', scannerHiddenFile);
 
     // Set Loading false
     hideLoading();
