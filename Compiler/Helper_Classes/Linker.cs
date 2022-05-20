@@ -14,8 +14,15 @@ namespace Compiler.Helper_Classes
 
             int numQuotes = 0;
 
+            //charIndex++;
+
             while (numQuotes < 2)
             {
+                if (numQuotes == 0 && Code[charIndex] == ' ')
+                {
+                    charIndex++;
+                    continue;
+                }
                 if (Code[charIndex] != '\"')
                 {
                     filePath.Append(Code[charIndex]);
@@ -47,7 +54,7 @@ namespace Compiler.Helper_Classes
             return true;
         }
 
-        public static bool AddIdentifier(string identifierName, string path)
+        public static bool AddIdentifier(string identifierName, string? path)
         {
             try
             {
