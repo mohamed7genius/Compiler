@@ -103,7 +103,6 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //handeling spaces
-
                 if (IsWhiteSpace(code[i]) || code[i] == '\t' || code[i] == ',' || (i == code.Length - 1))
                 {
                     SkipSpaces(code, ref i);
