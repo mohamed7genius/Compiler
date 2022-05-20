@@ -2,6 +2,7 @@
 using Compiler.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text;
 
 namespace Compiler.Controllers
 {
@@ -42,7 +43,7 @@ namespace Compiler.Controllers
         {
             InitValues();
 
-            AppendSpaceToString(ref code);
+            //AppendSpaceToString(ref code);
 
             for (int i = 0; i < code.Length; i++)
             {
@@ -52,14 +53,8 @@ namespace Compiler.Controllers
                     if (CheckMultilineCommentEnd(code, ref i) || CheckSingleLineCommentEnd(code, i))
                     {
                         isComment = false;
-                        //continue;
                     }
-                    //if(isComment && CheckMultilineCommentEnd(code, ref i))
-                    //    isComment = false;
-                    //if (isComment && CheckSingleLineCommentEnd(code, i))
-                    //    isComment = false;
-                    //isComment = !CheckMultilineCommentEnd(code, ref i);
-                    //isComment = !CheckSingleLineCommentEnd(code, i);
+
                     continue;
                 }
                 else
@@ -138,7 +133,7 @@ namespace Compiler.Controllers
                 //translating throught transition table
                 if (IsWhiteSpace(code[i]))
                 {
-                    CheckIfIdentifierOrErrorValue(filePath, i);
+                    //CheckIfIdentifierOrErrorValue(filePath, i);
                 }
                 else
                 {
@@ -177,7 +172,7 @@ namespace Compiler.Controllers
             {
                 //isComment = false;
                 SetTokenEndIndex(i);
-                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
+                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex-1);
                 SetTokenDetails();
                 InitValues();
                 lineNumber++;
@@ -258,7 +253,12 @@ namespace Compiler.Controllers
 
         private bool EndOfLine(string code, int i)
         {
-            if (code[i] == '\r' || code[i] == ';')
+            if (code[i] == ';')
+            {
+                AddToTokens(";");
+                return true;
+            }
+            else if (code[i] == '\r')
             {
                 return true;
             }
@@ -408,13 +408,13 @@ namespace Compiler.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index([FromForm]string code)
+        public IActionResult Index([FromForm]string code, [FromForm]string? filePath)
         {
             Instance = this;
 
             Debug.WriteLine(Request.Body);
 
-            ScanCode(code, null);
+            ScanCode(code, filePath);
 
             foreach (String line in scannerOutput)
             {
@@ -435,11 +435,45 @@ namespace Compiler.Controllers
         }
 
         [HttpPost]
-        public IActionResult ScanHiddenFile([FromForm]IFormCollection data, [FromForm]string s)
+        public IActionResult ScanHiddenFile(IFormFile file)
         {
-            var file = data;
+            string text;
 
-            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
+            if (file == null)
+                return Json(new { status = 404 });
+            try
+            {
+                text = ReadFormFile(file).ToString();
+
+                if(text.Length <= 0)
+                    return Json(new { status = 400 });
+
+                return Json(new { status = 200, data = text });
+            }
+            catch (Exception)
+            {
+                return Json(new { status = 500 });
+            }
+        }
+
+        private StringBuilder ReadFormFile(IFormFile file)
+        {
+            var result = new StringBuilder();
+            try
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    while (reader.Peek() >= 0)
+                        result.AppendLine(reader.ReadLine());
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+
+
+            return result;
         }
     }
 }

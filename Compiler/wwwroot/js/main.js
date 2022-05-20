@@ -12,6 +12,8 @@ const message = document.getElementById('message');
 
 // Global Vars
 let scannerData;
+let hiddenFileData;
+let scannerHiddenFile;
 
 const reloadEditorData = () => {
     let offset = Cursor.getCurrentCursorPosition(editor);
@@ -25,6 +27,7 @@ const reloadEditorData = () => {
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/color="(.*?)"/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<br>/, 'g'), ' \&nbsp\;');
 
     // Init keywords colors
 
@@ -430,9 +433,7 @@ const formSubmit = (e) => {
     // Set Loading true
     displayLoading();
 
-    const uploadedFile = file.files[0];
-
-    if (!uploadedFile) {
+    if (!file.files[0]) {
         // Hide loading
         hideLoading();
         // Display error message
@@ -445,18 +446,18 @@ const formSubmit = (e) => {
 
     // Submit to the backend
     const formData = new FormData();
-    formData.append('data', uploadFile);
-    formData.append('s', "Test");
+    formData.append('file', file.files[0]);
 
     fetch(`${location.origin}/scanner/ScanHiddenFile`, {
         method: 'Post',
-        data: formData
+        body: formData
     }).then(res => res.json())
         .then(data => {
             // Stop the loading
             hideLoading();
             if (data.status == 200) {
                 // Display PopUp with success message
+                hiddenFileData = data.data;
                 browsePopUp.children[0].children[0].innerText = "Your file is uploaded successfully!";
                 browsePopUp.style.transform = 'scale(1)';
             } else {
@@ -478,12 +479,42 @@ const scanHiddenFile = () => {
     displayLoading();
 
     // Send Post Req to Scanner
-    const data = getMainText();
-    console.log('Main Data', data);
-    scannerData = null;
+    const formData = new FormData();
+    formData.append('code', hiddenFileData);
+    formData.append('filePath', "hidden");
 
-    // Set Loading false
-    hideLoading();
+    console.log("Scanner data ", `${hiddenFileData} `);
+
+    fetch(`${location.origin}/Scanner`, {
+        method: 'POST',
+        body: formData,
+    }).then(res => res.json())
+        .then(res => {
+            // Stop the loading
+            hideLoading();
+            if (res.status == 200) {
+                scannerData = res.tokens;
+                console.log(res);
+                // remove old elements
+                output.innerHTML = '<h2>Comiler : </h2><button onclick="closeOutput()">Close</button>';
+                // Display output and it's data
+                res.output.forEach(el => {
+                    let newElement = document.createElement('div');
+                    newElement.innerText = el;
+                    output.appendChild(newElement);
+                });
+                output.style.transform = 'translateY(0)';
+                console.log(scannerData);
+            } else {
+                // Display error message
+                displayMessage(`There's an error while scanning your code, please try again`);
+            }
+        }).catch(e => {
+            // Stop the loading
+            hideLoading();
+            // Display error message
+            displayMessage(`There's an error while scanning your code, please try again`);
+        });
 };
 
 const parseHiddenFile = () => {
