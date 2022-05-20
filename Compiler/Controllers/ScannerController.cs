@@ -46,36 +46,30 @@ namespace Compiler.Controllers
             for (int i = 0; i < code.Length; i++)
             {
                 //  handling comments
-                if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
-                {
-                    i++;
-                    isComment = true;
-                    continue;
-                }
-                if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
-                {
-                    isComment = true;
-                    i += 2;
-                    continue;
-                }
                 if (isComment)
                 {
-                    if (code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+                    if (CheckMultilineCommentEnd(code, ref i) || CheckSingleLineCommentEnd(code, i))
                     {
                         isComment = false;
-                        i++;
-                    } 
-                    if (code[i] == '\n')
-                    {
-                        /*isComment = false;
-                        SetTokenEndIndex(i);
-                        token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
-                        SetTokenDetails();
-                        token = "";*/
-                        lineNumber++;
+                        //continue;
                     }
-
+                    //if(isComment && CheckMultilineCommentEnd(code, ref i))
+                    //    isComment = false;
+                    //if (isComment && CheckSingleLineCommentEnd(code, i))
+                    //    isComment = false;
+                    //isComment = !CheckMultilineCommentEnd(code, ref i);
+                    //isComment = !CheckSingleLineCommentEnd(code, i);
                     continue;
+                }
+                else
+                {
+                    isComment = ChecktMultilineCommentStart(code, i);
+
+                    if (CheckSingleLineCommentStart(code, i))
+                    {
+                        i += 2;
+                        isComment = true;
+                    }
                 }
 
                 //--------------------------------
@@ -101,7 +95,7 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //handeling spaces
-                if (code[i] == ' ' || code[i] == '\t' || code[i] == ',' || code[i] == ';' || (i == code.Length - 1))
+                if (code[i] == ' ' || code[i] == '\t' || code[i] == ',' || (i == code.Length - 1))
                 {
                     SkipSpaces(code, ref i);
 
@@ -137,7 +131,7 @@ namespace Compiler.Controllers
                 }
 
                 //translating throught transition table
-                if (code[i] == ' ' || code[i] == (char)160)
+                if (code[i] == ' ')
                 {
                     CheckIfIdentifierOrErrorValue(filePath, i);
                 }
@@ -160,6 +154,61 @@ namespace Compiler.Controllers
                 PrintNumErrors();
             }
 
+        }
+
+        private bool CheckSingleLineCommentEnd(string code, int i)
+        {
+            if (code[i] == '\n')
+            {
+                //isComment = false;
+                SetTokenEndIndex(i);
+                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
+                SetTokenDetails();
+                InitValues();
+                lineNumber++;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool CheckMultilineCommentEnd(string code, ref int i)
+        {
+            if (code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+            {
+                //isComment = false;
+                i++;
+                InitValues();
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ChecktMultilineCommentStart(string code, int i)
+        {
+            if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
+            {
+                return true;
+                //isComment = true;
+                //continue;
+            }
+
+            return false;
+        }
+
+        private bool CheckSingleLineCommentStart(string code, int i)
+        {
+            if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
+            {
+                //isComment = true;
+                //i += 2;
+                return true;
+                //continue;
+            }
+
+            return false;
         }
 
         private static void AppendSpaceToString(ref string str)
@@ -194,11 +243,11 @@ namespace Compiler.Controllers
 
         private bool EndOfLine(char character)
         {
-            if (character == '\r')
+            if (character == '\r' || character == ';')
             {
                 return true;
             }
-            if (character == '\n')
+            else if (character == '\n')
             {
                 lineNumber++;
                 return true;
