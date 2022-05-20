@@ -38,6 +38,7 @@ namespace Compiler.Controllers
         const int INVALID_STATE = -1;
 
         List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
+        List<Dictionary<string, string>> Errors = new List<Dictionary<string, string>>();
 
         enum Comment
         {
@@ -192,7 +193,7 @@ namespace Compiler.Controllers
         {
             if (code[i] == '\n')
             {
-                //isComment = false;
+                comment = Comment.NoComment;
                 SetTokenEndIndex(i);
                 token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
                 SetTokenDetails();
@@ -233,7 +234,7 @@ namespace Compiler.Controllers
         {
             if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
             {
-             
+                SetTokenStartIndex(i);
                 return true;
                 
             }
@@ -341,12 +342,15 @@ namespace Compiler.Controllers
                     AddMessageToOutput("Error in Token :" + token);
 
                     //scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
+                    SetTokenEndIndex(i);
+                    SetErrorDetails();
                     totalErrors++;
                 }
 
-                InitValues();
                 SetTokenEndIndex(i);
                 SetTokenDetails();
+                InitValues();
+
             }
         }
         
@@ -415,6 +419,16 @@ namespace Compiler.Controllers
                 { "End", tokenEndIndex.ToString() }
             });
         }
+        
+        public void SetErrorDetails()
+        {
+            Errors.Add(new Dictionary<string, string>()
+            {
+                { "Name", token },
+                { "Start", tokenStartIndex.ToString() },
+                { "End", tokenEndIndex.ToString() }
+            });
+        }
 
         [HttpPost]
         public IActionResult Index([FromForm]string code, [FromForm]string? filePath)
@@ -441,7 +455,15 @@ namespace Compiler.Controllers
                 }
             }
 
+            Debug.WriteLine("ERRRRRORRRRRRR");
 
+            foreach (var error in Errors)
+            {
+                foreach (var item in error)
+                {
+                    Debug.WriteLine(item.Key + " = " + item.Value);
+                }
+            }
             return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
         }
 
