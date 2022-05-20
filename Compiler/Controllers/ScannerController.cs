@@ -23,7 +23,7 @@ namespace Compiler.Controllers
         int currentState;
         int lineNumber = 1;
         int totalErrors = 0;
-        bool isComment = false;
+        Comment comment = Comment.NoComment;
         bool addExtraSpace = false;
         bool acceptedState = false;
         bool canBeConstant = true;
@@ -39,6 +39,13 @@ namespace Compiler.Controllers
 
         List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
 
+        enum Comment
+        {
+            NoComment,
+            SingleLine,
+            MultiLine,
+        }
+
         public void ScanCode(string code, string? filePath)
         {
             InitValues();
@@ -48,24 +55,30 @@ namespace Compiler.Controllers
             for (int i = 0; i < code.Length; i++)
             {
                 //  handling comments
-                if (isComment)
+                if (comment != Comment.NoComment)
                 {
-                    if (CheckMultilineCommentEnd(code, ref i) || CheckSingleLineCommentEnd(code, i))
+                    if ((comment == Comment.MultiLine && CheckMultilineCommentEnd(code, ref i)) || (comment == Comment.SingleLine && CheckSingleLineCommentEnd(code, i)))
                     {
-                        isComment = false;
+                        comment = Comment.NoComment;
                     }
 
                     continue;
                 }
                 else
                 {
-                    isComment = ChecktMultilineCommentStart(code, i);
+                    if(ChecktMultilineCommentStart(code, i))
+                    {
+                        comment = Comment.MultiLine;
+                    }
 
                     if (CheckSingleLineCommentStart(code, i))
                     {
                         i += 2;
-                        isComment = true;
+                        comment = Comment.SingleLine;
                     }
+
+                    if (comment != Comment.NoComment)
+                        continue;
                 }
 
                 //--------------------------------
@@ -308,7 +321,7 @@ namespace Compiler.Controllers
             token = "";
             currentState = (int)State.A;
             acceptedState = false;
-            isComment = false;
+            comment = Comment.NoComment;
             canBeConstant = true;
         }
 
