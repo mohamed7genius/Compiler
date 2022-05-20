@@ -26,6 +26,7 @@ namespace Compiler.Controllers
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
+        public List<string> tokensOutput = new List<string>();
 
         int tokenStartIndex = -1;
         int tokenEndIndex = -1;
@@ -47,6 +48,7 @@ namespace Compiler.Controllers
                 //  handling comments
                 if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
                 {
+                    i++;
                     isComment = true;
                     continue;
                 }
@@ -62,14 +64,14 @@ namespace Compiler.Controllers
                     {
                         isComment = false;
                         i++;
-                    }
+                    } 
                     if (code[i] == '\n')
                     {
-                        isComment = false;
+                        /*isComment = false;
                         SetTokenEndIndex(i);
                         token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
                         SetTokenDetails();
-                        token = "";
+                        token = "";*/
                         lineNumber++;
                     }
 
@@ -82,6 +84,7 @@ namespace Compiler.Controllers
                 {
                     continue;
                 }
+
                 //--------------------------------
                 //setting index of the beginning of each token
                 if (code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';')
@@ -112,11 +115,13 @@ namespace Compiler.Controllers
                     {
                         if (currentState == CONSTANT_STATE)
                         {
+                            AddToTokens(token);
                             AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
                             //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
                         }
                         else
                         {
+                            AddToTokens(token);
                             AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                             //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
                         }
@@ -249,12 +254,14 @@ namespace Compiler.Controllers
             {
                 if (CheckIdentifier(token))
                 {
+                    AddToTokens(token);
                     AddMessageToOutput("Token Text: " + token + "      " + "IDENTIFIER");
                     //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
                     Linker.AddIdentifier(token, filePath);
                 }
                 else
                 {
+                    AddToTokens(token);
                     AddMessageToOutput("Error in Token :" + token);
                     //scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
                     totalErrors++;
@@ -270,6 +277,12 @@ namespace Compiler.Controllers
         {
             scannerOutput.Add("Line :" + lineNumber + " " + message);
         }
+
+        private void AddToTokens(string token)
+        {
+            tokensOutput.Add(token);
+        }
+
         public bool IsDigit(char token)
         {
             return numbers.Contains(token);
@@ -354,7 +367,7 @@ namespace Compiler.Controllers
             }
 
 
-            return Json(new { status = 200, data = scannerOutput });
+            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
         }
     }
 }
