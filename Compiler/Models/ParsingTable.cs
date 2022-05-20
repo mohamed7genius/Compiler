@@ -96,13 +96,13 @@ namespace Compiler.Models
             table[8, 0] = "( params ) compound-stmt";
    
 
-            table[9, 1] = " param-list";
-            table[9, 2] = " param-list";
-            table[9, 3] = " param-list";
-            table[9, 4] = " param-list";
-            table[9, 5] = " param-list";
-            table[9, 6] = " param-list";
-            table[9, 7] = " param-list";
+            table[9, 1] = "param-list";
+            table[9, 2] = "param-list";
+            table[9, 3] = "param-list";
+            table[9, 4] = "param-list";
+            table[9, 5] = "param-list";
+            table[9, 6] = "param-list";
+            table[9, 7] = "param-list";
 
             table[9, 17] = "";
  
@@ -281,7 +281,7 @@ namespace Compiler.Models
           
 
       
-            table[21, 23] = "if ( expression ) statement selection-stmt’";
+            table[21, 23] = "If ( expression ) statement selection-stmt’";
 
 
 
@@ -302,7 +302,7 @@ namespace Compiler.Models
             table[22, 25] = "";
             table[22, 26] = "";
             table[22, 27] = "";
-            table[22, 28] = "else statement";
+            table[22, 28] = "Else statement";
 
 
 
@@ -320,24 +320,33 @@ namespace Compiler.Models
             table[26, 27] = "Turnback expression ;";
 
 
-            table[27, 0] = "simple-expression";
+            table[27, 0] = "( expression ) term’ additive-expression’ simple-expression’";
  
             table[27, 9] = "id-assign expression’";
-            table[27, 10] = "id-assign expression’";
-            table[27, 11] = "id-assign expression’";
+            table[27, 10] = "num term’ additive-expression’ simple-expression’";
+            table[27, 11] = "num term’ additive-expression’ simple-expression’";
       
-            table[27, 20] = "simple-expression";
-            table[27, 21] = "simple-expression";
+            table[27, 20] = "num term’ additive-expression’ simple-expression’";
+            table[27, 21] = "num term’ additive-expression’ simple-expression’";
 
 
+            table[28, 0] = "call term’ additive-expression’ simple-expression’";
+            table[28, 10] = "term’ additive-expression’ simple-expression’";
+            table[28, 11] = "term’ additive-expression’ simple-expression’";
 
+            table[28, 12] = "term’ additive-expression’ simple-expression’";
+            table[28, 14] = "term’ additive-expression’ simple-expression’";
             table[28, 17] = "";
             table[28, 18] = "";
 
             table[28, 22] = "";
 
             table[28, 29] = "= expression";
-
+            table[28, 30] = "term’ additive-expression’ simple-expression’";
+            table[28, 31] = "term’ additive-expression’ simple-expression’";
+            table[28, 32] = "term’ additive-expression’ simple-expression’";
+            table[28, 33] = "term’ additive-expression’ simple-expression’";
+            table[28, 34] = "term’ additive-expression’ simple-expression’";
 
             table[29, 9] = "ID";
        
@@ -368,7 +377,7 @@ namespace Compiler.Models
 
 
             table[32, 29] = "= relop’";
-            table[32, 30] = " < relop’";
+            table[32, 30] = "< relop’";
             table[32, 31] = "> relop’";
             table[32, 32] = "!relop’";
             table[32, 33] = "&&";
@@ -396,16 +405,20 @@ namespace Compiler.Models
             table[34, 20] = "term additive-expression’";
             table[34, 21] = "term additive-expression’";
 
-            table[35, 0] = "";
-                  
-            table[35, 9] = "";
+   
             table[35, 10] = "addop term additive-expression’";
             table[35, 11] = "addop term additive-expression’";
                   
             table[35, 17] = "";
             table[35, 18] = "";
-            table[35, 20] = "";
+            table[35, 22] = "";
             table[35, 21] = "";
+            table[35, 29] = "";
+            table[35, 30] = "";
+            table[35, 31] = "";
+            table[35, 32] = "";
+            table[35, 33] = "";
+            table[35, 34] = "";
          
             table[36, 10] = "+";
             table[36, 11] = "-";
@@ -436,7 +449,13 @@ namespace Compiler.Models
             table[38, 21] = "";
             table[38, 22] = "";
 
-            table[38, 35] = "";
+            table[38, 29] = "";
+            table[38, 30] = "";
+            table[38, 31] = "";
+            table[38, 32] = "";
+            table[38, 33] = "";
+            table[38, 34] = "";
+
 
 
             table[39, 12] = "*";
@@ -460,6 +479,7 @@ namespace Compiler.Models
             table[41, 10] = "";
             table[41, 11] = "";
             table[41, 12] = "";
+            table[41, 14] = "";
 
             table[41, 17] = "";
             table[41, 18] = "";
@@ -467,6 +487,12 @@ namespace Compiler.Models
             table[41, 20] = "";
             table[41, 21] = "";
             table[41, 22] = "";
+            table[41, 29] = "";
+            table[41, 30] = "";
+            table[41, 31] = "";
+            table[41, 32] = "";
+            table[41, 33] = "";
+            table[41, 34] = "";
 
 
 
@@ -500,11 +526,11 @@ namespace Compiler.Models
             table[45, 18] = ", expression arg-list’";
 
 
-            table[46, 10] = "Signed num";
-            table[46, 11] = "Signed num";
+            table[46, 10] = "Signed-num";
+            table[46, 11] = "Signed-num";
 
-            table[46, 20] = "Unsigned num";
-            table[46, 21] = "Unsigned num";
+            table[46, 20] = "Unsigned-num";
+            table[46, 21] = "Unsigned-num";
 
 
             table[47, 20] = "value";
@@ -583,8 +609,8 @@ namespace Compiler.Models
             "arg-list",
             "arg-list’",
             "num",
-            "Unsigned num",
-            "Signed num",
+            "Unsigned-num",
+            "Signed-num",
             "pos-num",
             "neg-num",
             "value",
@@ -621,12 +647,12 @@ namespace Compiler.Models
             "INT_NUM",
             "FLOAT_NUM",
             ";",
-            "if",
+            "If",
             "Loopwhen",
             "Iteratewhen",
             "Turnback",
             "Stop",
-            "else",
+            "Else",
             "=",
             "<",
             ">",

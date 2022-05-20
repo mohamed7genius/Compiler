@@ -13,7 +13,7 @@ namespace Compiler.Controllers
         [HttpPost]
         public IActionResult Index([FromForm] string code)
         {
-           // code = "Iow ID ;";
+            //code = "Iow ID ( ) { If ( ID < FLOAT_NUM ) { Iow ID ; } }";
             code = code + " #";
             int IP = 0;
             Stack stack = new Stack();
@@ -23,8 +23,10 @@ namespace Compiler.Controllers
 			while (stack.Peek() != "#")
 			{   
 				if (IsTerminal(stack.Peek()))
-				{   
-					if (stack.Peek() == token[IP])
+				{
+                    String h = stack.Peek();
+
+                    if (stack.Peek() == token[IP])
 					{
                         Debug.WriteLine("Match", token[IP]);
                         stack.Pop();
@@ -33,17 +35,19 @@ namespace Compiler.Controllers
 					else
 					{
                         Debug.WriteLine("Error terminal");
+                        //stack.Pop();
 					}
                 
 				}
 				else
                 {
+                    String j = stack.Peek();
                     var row = GetNonTerminalIndex(stack.Peek());
                     var column = GetTerminalIndex(token[IP]);
 					if (table[row, column]==null)
 					{
-                        Debug.WriteLine("Error");
-
+                        Debug.WriteLine(stack.Peek()+ "Error");
+                        //stack.Pop();
 					}
 					else if (table[row, column] != null)
                     {
