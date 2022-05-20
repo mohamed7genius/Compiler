@@ -344,7 +344,7 @@ const scan = () => {
     // Set Loading true
     displayLoading();
 
-    const code = getMainText().replace('/(\&nbsp\;| )/', ' '); // The code that will be sent to the scanner : add space to the end
+    const code = (getMainText().replace(new RegExp(/(&nbsp;|&#160;| )/, 'g'), ' ')).replace(new RegExp(/(\n)/, 'g'), ' \n '); // The code that will be sent to the scanner : add space to the end
 
     // Check the text
     if (code == '' || code == null) {
@@ -432,7 +432,7 @@ const formSubmit = (e) => {
 
     const uploadedFile = file.files[0];
 
-    if (uploadedFile) {
+    if (!uploadedFile) {
         // Hide loading
         hideLoading();
         // Display error message
@@ -445,9 +445,10 @@ const formSubmit = (e) => {
 
     // Submit to the backend
     const formData = new FormData();
-    formData.append('file', uploadFile);
+    formData.append('data', uploadFile);
+    formData.append('s', "Test");
 
-    fetch('backendUrl', {
+    fetch(`${location.origin}/scanner/ScanHiddenFile`, {
         method: 'Post',
         data: formData
     }).then(res => res.json())

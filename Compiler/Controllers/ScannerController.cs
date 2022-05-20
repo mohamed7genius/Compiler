@@ -23,6 +23,7 @@ namespace Compiler.Controllers
         int lineNumber = 1;
         int totalErrors = 0;
         bool isComment = false;
+        bool addExtraSpace = false;
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
@@ -74,14 +75,14 @@ namespace Compiler.Controllers
 
                 //--------------------------------
                 //handeling the end of the line
-                if (EndOfLine(code[i]))
+                if (EndOfLine(code, i))
                 {
                     continue;
                 }
 
                 //--------------------------------
                 //setting index of the beginning of each token
-                if (code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';')
+                if (!IsWhiteSpace(code[i]) && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
                     //Debug.WriteLine(i + "char is : " + code[i]);
                     SetTokenStartIndex(i);
@@ -95,7 +96,11 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //handeling spaces
-                if (code[i] == ' ' || code[i] == '\t' || code[i] == ',' || (i == code.Length - 1))
+                if (i == 5)
+                {
+                    var x = (int)code[i];
+                }
+                if (IsWhiteSpace(code[i]) || code[i] == '\t' || code[i] == ',' || (i == code.Length - 1))
                 {
                     SkipSpaces(code, ref i);
 
@@ -123,7 +128,7 @@ namespace Compiler.Controllers
                         SetTokenDetails();
                         InitValues();
                     }
-                    else if (!CheckValidState() && code[i] != ' ')
+                    else if (!CheckValidState() && IsWhiteSpace(code[i]))
                     {
                         CheckIfIdentifierOrErrorValue(filePath, i);
                     }
@@ -131,12 +136,17 @@ namespace Compiler.Controllers
                 }
 
                 //translating throught transition table
-                if (code[i] == ' ')
+                if (IsWhiteSpace(code[i]))
                 {
                     CheckIfIdentifierOrErrorValue(filePath, i);
                 }
                 else
                 {
+                    if (i > 0 && code[i-1] == '\n')
+                    {
+                        InitValues();
+                        //addExtraSpace = true;
+                    }
                     token += code[i];
 
                     if (CheckValidState())
@@ -154,6 +164,11 @@ namespace Compiler.Controllers
                 PrintNumErrors();
             }
 
+        }
+
+        private bool IsWhiteSpace(char c)
+        {
+            return c == ' ' || c == (char)160;
         }
 
         private bool CheckSingleLineCommentEnd(string code, int i)
@@ -233,21 +248,21 @@ namespace Compiler.Controllers
             return currentState != INVALID_STATE;
         }
 
-        private static void SkipSpaces(string code, ref int i)
+        private void SkipSpaces(string code, ref int i)
         {
-            while (i < code.Length - 1 && code[i + 1] == ' ')
+            while (i < code.Length - 1 && IsWhiteSpace(code[i + 1]))
             {
                 i++;
             }
         }
 
-        private bool EndOfLine(char character)
+        private bool EndOfLine(string code, int i)
         {
-            if (character == '\r' || character == ';')
+            if (code[i] == '\r' || code[i] == ';')
             {
                 return true;
             }
-            else if (character == '\n')
+            else if (code[i] == '\n')
             {
                 lineNumber++;
                 return true;
@@ -415,6 +430,14 @@ namespace Compiler.Controllers
                 }
             }
 
+
+            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
+        }
+
+        [HttpPost]
+        public IActionResult ScanHiddenFile([FromForm]IFormCollection data, [FromForm]string s)
+        {
+            var file = data;
 
             return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
         }
