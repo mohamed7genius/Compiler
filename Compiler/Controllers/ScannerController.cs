@@ -2,6 +2,7 @@
 using Compiler.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text;
 
 namespace Compiler.Controllers
 {
@@ -22,7 +23,7 @@ namespace Compiler.Controllers
         int currentState;
         int lineNumber = 1;
         int totalErrors = 0;
-        bool isComment = false;
+        Comment comment = Comment.NoComment;
         bool acceptedState = false;
         bool canBeConstant = true;
         public List<string> scannerOutput = new List<string>();
@@ -37,57 +38,58 @@ namespace Compiler.Controllers
 
         List<Dictionary<string, string>> Tokens = new List<Dictionary<string, string>>();
 
+        enum Comment
+        {
+            NoComment,
+            SingleLine,
+            MultiLine,
+        }
+
         public void ScanCode(string code, string? filePath)
         {
             InitValues();
 
-            AppendSpaceToString(ref code);
+            //AppendSpaceToString(ref code);
 
             for (int i = 0; i < code.Length; i++)
             {
                 //  handling comments
-                if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
+                if (comment != Comment.NoComment)
                 {
-                    i++;
-                    isComment = true;
-                    continue;
-                }
-                if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
-                {
-                    isComment = true;
-                    i += 2;
-                    continue;
-                }
-                if (isComment)
-                {
-                    if (code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+                    if ((comment == Comment.MultiLine && CheckMultilineCommentEnd(code, ref i)) || (comment == Comment.SingleLine && CheckSingleLineCommentEnd(code, i)))
                     {
-                        isComment = false;
-                        i++;
-                    } 
-                    if (code[i] == '\n')
-                    {
-                        /*isComment = false;
-                        SetTokenEndIndex(i);
-                        token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
-                        SetTokenDetails();
-                        token = "";*/
-                        lineNumber++;
+                        comment = Comment.NoComment;
                     }
 
                     continue;
                 }
+                else
+                {
+                    if(ChecktMultilineCommentStart(code, i))
+                    {
+                        comment = Comment.MultiLine;
+                    }
+
+                    if (CheckSingleLineCommentStart(code, i))
+                    {
+                        i += 2;
+                        comment = Comment.SingleLine;
+                    }
+
+                    if (comment != Comment.NoComment)
+                        continue;
+                }
 
                 //--------------------------------
                 //handeling the end of the line
-                if (EndOfLine(code[i]))
+                if (EndOfLine(code, i))
                 {
                     continue;
                 }
 
                 //--------------------------------
                 //setting index of the beginning of each token
-                if (code[i] != ' ' && code[i] != '\t' && code[i] != ',' && code[i] != ';')
+                if (!IsWhiteSpace(code[i]) && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
                     //Debug.WriteLine(i + "char is : " + code[i]);
                     SetTokenStartIndex(i);
@@ -101,7 +103,8 @@ namespace Compiler.Controllers
                 }
                 //--------------------------------
                 //handeling spaces
-                if (code[i] == ' ' || code[i] == '\t' || code[i] == ',' || code[i] == ';' || (i == code.Length - 1))
+
+                if (IsWhiteSpace(code[i]) || code[i] == '\t' || code[i] == ',' || (i == code.Length - 1))
                 {
                     SkipSpaces(code, ref i);
 
@@ -129,20 +132,19 @@ namespace Compiler.Controllers
                         SetTokenDetails();
                         InitValues();
                     }
-                    else if (!CheckValidState() && code[i] != ' ')
+                    else if (!CheckValidState() && IsWhiteSpace(code[i]))
                     {
                         CheckIfIdentifierOrErrorValue(filePath, i);
                     }
 
                 }
 
-                //translating throught transition table
-                if (code[i] == ' ' || code[i] == (char)160)
+                if(!IsWhiteSpace(code[i]))
                 {
-                    CheckIfIdentifierOrErrorValue(filePath, i);
-                }
-                else
-                {
+                    if (i > 0 && code[i-1] == '\n')
+                    {
+                        InitValues();
+                    }
                     token += code[i];
 
                     if (CheckValidState())
@@ -162,11 +164,66 @@ namespace Compiler.Controllers
 
         }
 
-        private static void AppendSpaceToString(ref string str)
+        private bool IsWhiteSpace(char c)
         {
-            if (str[str.Length - 1] != ' ')
-                str += ' ';
+            return c == ' ' || c == (char)160;
         }
+
+        private bool CheckSingleLineCommentEnd(string code, int i)
+        {
+            if (code[i] == '\n')
+            {
+                //isComment = false;
+                SetTokenEndIndex(i);
+                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
+                SetTokenDetails();
+                InitValues();
+                lineNumber++;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool CheckMultilineCommentEnd(string code, ref int i)
+        {
+            if (code[i] == '$' && (i <= code.Length - 2) && code[i + 1] == '/')
+            {
+                //isComment = false;
+                i++;
+                InitValues();
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ChecktMultilineCommentStart(string code, int i)
+        {
+            if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
+            {
+                return true;
+                //isComment = true;
+                //continue;
+            }
+
+            return false;
+        }
+
+        private bool CheckSingleLineCommentStart(string code, int i)
+        {
+            if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
+            {
+                //isComment = true;
+                //i += 2;
+                return true;
+                //continue;
+            }
+
+            return false;
+        }
+
 
         private void CheckAcceptedState()
         {
@@ -184,21 +241,26 @@ namespace Compiler.Controllers
             return currentState != INVALID_STATE;
         }
 
-        private static void SkipSpaces(string code, ref int i)
+        private void SkipSpaces(string code, ref int i)
         {
-            while (i < code.Length - 1 && code[i + 1] == ' ')
+            while (i < code.Length - 1 && IsWhiteSpace(code[i + 1]))
             {
                 i++;
             }
         }
 
-        private bool EndOfLine(char character)
+        private bool EndOfLine(string code, int i)
         {
-            if (character == '\r')
+            if (code[i] == ';')
+            {
+                AddToTokens(";");
+                return true;
+            }
+            else if (code[i] == '\r')
             {
                 return true;
             }
-            if (character == '\n')
+            else if (code[i] == '\n')
             {
                 lineNumber++;
                 return true;
@@ -244,7 +306,7 @@ namespace Compiler.Controllers
             token = "";
             currentState = (int)State.A;
             acceptedState = false;
-            isComment = false;
+            comment = Comment.NoComment;
             canBeConstant = true;
         }
 
@@ -344,13 +406,13 @@ namespace Compiler.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index([FromForm]string code)
+        public IActionResult Index([FromForm]string code, [FromForm]string? filePath)
         {
             Instance = this;
 
             Debug.WriteLine(Request.Body);
 
-            ScanCode(code, null);
+            ScanCode(code, filePath);
 
             foreach (String line in scannerOutput)
             {
@@ -368,6 +430,48 @@ namespace Compiler.Controllers
 
 
             return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
+        }
+
+        [HttpPost]
+        public IActionResult ScanHiddenFile(IFormFile file)
+        {
+            string text;
+
+            if (file == null)
+                return Json(new { status = 404 });
+            try
+            {
+                text = ReadFormFile(file).ToString();
+
+                if(text.Length <= 0)
+                    return Json(new { status = 400 });
+
+                return Json(new { status = 200, data = text });
+            }
+            catch (Exception)
+            {
+                return Json(new { status = 500 });
+            }
+        }
+
+        private StringBuilder ReadFormFile(IFormFile file)
+        {
+            var result = new StringBuilder();
+            try
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    while (reader.Peek() >= 0)
+                        result.AppendLine(reader.ReadLine());
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+
+
+            return result;
         }
     }
 }
