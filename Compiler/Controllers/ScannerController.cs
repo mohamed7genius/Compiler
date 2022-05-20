@@ -47,9 +47,9 @@ namespace Compiler.Controllers
 
         public void ScanCode(string code, string? filePath)
         {
+            code=replace('\r',' ',code);
             InitValues();
 
-            //AppendSpaceToString(ref code);
 
             for (int i = 0; i < code.Length; i++)
             {
@@ -91,7 +91,7 @@ namespace Compiler.Controllers
                 //setting index of the beginning of each token
                 if (!IsWhiteSpace(code[i]) && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
-                    //Debug.WriteLine(i + "char is : " + code[i]);
+
                     SetTokenStartIndex(i);
                 }
 
@@ -119,13 +119,13 @@ namespace Compiler.Controllers
                         {
                             AddToTokens(token);
                             AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
-                            //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens["D"]);
+
                         }
                         else
                         {
                             AddToTokens(token);
                             AddMessageToOutput("Token Text: " + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
-                            //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + KeyWordsDictionary.keyWordsAndTokens[token]);
+
                         }
                         SetTokenEndIndex(i);
                         SetTokenDetails();
@@ -135,6 +135,7 @@ namespace Compiler.Controllers
                     {
                         CheckIfIdentifierOrErrorValue(filePath, i);
                     }
+
 
                 }
 
@@ -161,6 +162,24 @@ namespace Compiler.Controllers
                 PrintNumErrors();
             }
 
+        }
+
+
+        private string  replace(char oldChar,char newchar ,string? code)
+        {
+            string? codeReplaced="";
+            for (int i = 0; i < code!.Length; i++)
+            {
+                if (code[i] == oldChar)
+                {
+                    codeReplaced += newchar;
+                }
+                else
+                {
+                    codeReplaced += code[i];
+                }          
+            }
+            return codeReplaced;
         }
 
         private bool IsWhiteSpace(char c)
@@ -203,8 +222,7 @@ namespace Compiler.Controllers
             if (code[i] == '/' && (i <= code.Length - 2) && code[i + 1] == '$')
             {
                 return true;
-                //isComment = true;
-                //continue;
+               
             }
 
             return false;
@@ -214,10 +232,9 @@ namespace Compiler.Controllers
         {
             if (i <= code.Length - 3 && code[i] == '$' && code[i + 1] == '$' && code[i + 2] == '$')
             {
-                //isComment = true;
-                //i += 2;
+             
                 return true;
-                //continue;
+                
             }
 
             return false;
@@ -255,10 +272,7 @@ namespace Compiler.Controllers
                 AddToTokens(";");
                 return true;
             }
-            else if (code[i] == '\r')
-            {
-                return true;
-            }
+ 
             else if (code[i] == '\n')
             {
                 lineNumber++;
@@ -324,6 +338,7 @@ namespace Compiler.Controllers
                 {
                     AddToTokens(token);
                     AddMessageToOutput("Error in Token :" + token);
+
                     //scannerOutput.Add("Line :" + lineNumber + " Error in Token :" + token);
                     totalErrors++;
                 }
@@ -380,18 +395,14 @@ namespace Compiler.Controllers
             {
                 tokenStartIndex = i;
                 tokenEndIndex = -1;
-                //Debug.WriteLine("---------end = " + end);
 
             }
-            //Debug.WriteLine("IIstart = " +i);
-            //Debug.WriteLine("start = " + start);
+
         }
 
         public void SetTokenEndIndex(int i)
         {
             tokenEndIndex = i;
-            //Debug.WriteLine("IIend = "+i);
-            //Debug.WriteLine("end = " + end);
         }
 
         public void SetTokenDetails()
