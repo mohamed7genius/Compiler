@@ -427,6 +427,8 @@ namespace Compiler.Controllers
 
             Debug.WriteLine(Request.Body);
 
+            Linker.identifierDict.Clear();
+
             ScanCode(code, filePath);
 
             foreach (String line in scannerOutput)
