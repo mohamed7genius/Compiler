@@ -8,9 +8,9 @@ namespace Compiler.Models
         public static String[,] init()
         {
 
-            for (int row = 0; row < 99; row++)
+            for (int row = 0; row < 56; row++)
             {
-                for (int column = 0; column < 127; column++)
+                for (int column = 0; column < 36; column++)
                 {
                     table[row, column] = null;
                 }
@@ -24,7 +24,7 @@ namespace Compiler.Models
             table[0, 5] = "declaration-list";
             table[0, 6] = "declaration-list";
             table[0, 7] = "declaration-list";
-            table[0, 8] = " include_command";
+            table[0, 8] = "include_command";
 
             table[0, 13] = "comment";
             table[0, 14] = "comment";
@@ -532,7 +532,7 @@ namespace Compiler.Models
 
             return table;
         }
-        public static String[] GetTerminal()
+        public static String[] GetNonTerminal()
         {
             string[] NonTerminal =
 {
@@ -594,7 +594,7 @@ namespace Compiler.Models
         };
             return NonTerminal;
         }
-        public static String[] GetNonTerminal()
+        public static String[] GetTerminal()
         {
             string[] terminal =
 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Compiler.Models;
+using Compiler.DataSturcutres;
 namespace Compiler.Controllers
 {
     public class ParserController : Controller
@@ -12,8 +13,65 @@ namespace Compiler.Controllers
         [HttpPost]
         public IActionResult Index([FromForm] string code)
         {
+           // code = "Iow ID ;";
+            code = code + " #";
+            int IP = 0;
+            Stack stack = new Stack();
+            stack.Push("program");
+            string[] token = X(code);
             Debug.WriteLine(code);
+			while (stack.Peek() != "#")
+			{   
+				if (IsTerminal(stack.Peek()))
+				{   
+					if (stack.Peek() == token[IP])
+					{
+                        Debug.WriteLine("Match", token[IP]);
+                        stack.Pop();
+                        IP++;
+					}
+					else
+					{
+                        Debug.WriteLine("Error terminal");
+					}
+                
+				}
+				else
+                {
+                    var row = GetNonTerminalIndex(stack.Peek());
+                    var column = GetTerminalIndex(token[IP]);
+					if (table[row, column]==null)
+					{
+                        Debug.WriteLine("Error");
+
+					}
+					else if (table[row, column] != null)
+                    {
+                       string Production = stack.Pop();
+                       string [] ProductionArray= X(table[row, column]);
+						for (int i = ProductionArray.Length-1; i >= 0; i--)
+						{
+                            if (ProductionArray[i] == "")
+                            {
+
+                            }
+                            else
+                            {
+                                stack.Push(ProductionArray[i]);
+                            }
+						}
+					}
+				}
+			}
             return Json(new { status = 200, output = "Hello World!" });
+        }
+        private bool IsTerminal(string terminalCode)
+		{
+             if(GetTerminalIndex(terminalCode) == -1)
+			{
+                return false;
+			}
+            return true;
         }
         private int GetNonTerminalIndex(String nonTerminal)
         {
@@ -41,5 +99,17 @@ namespace Compiler.Controllers
             }
             return -1;
         }
+        private string []  X (String Code)
+		{
+            string[] Token = Code.Split(" ");
+            return Token;
+			/*for (int i=0;i<Code.Length;i++)
+			{
+				if (Code[i] ==" ")
+				{
+
+				}
+			}*/
+		}
     }
 }
