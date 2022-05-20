@@ -252,6 +252,32 @@ button:hover {
     transform: translate(-50%, -30vh);
 }
 
+#autoCompleteContainer {
+    position: absolute;
+    top: 25vh;
+    right: 10vw;
+    list-style: none;
+    background: #fff;
+    padding: 1vh 1vw;
+    border-radius: 5px;
+    width: 150px;
+    max-height: 125px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: .5s ease;
+    transform: scaleZ(0);
+}
+
+#autoCompleteContainer li{
+    border-bottom: 1px solid #ddd;
+    transition: .5s ease;
+    cursor: pointer;
+}
+
+#autoCompleteContainer li:hover{
+    opacity: .7;
+}
+
 
 @keyframes spinner {
     from {

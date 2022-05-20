@@ -5,11 +5,12 @@ namespace Compiler.Helper_Classes
 {
     public static class Linker
     {
-        private static Dictionary<string, string> identifierDict = new Dictionary<string, string>();
+        public static Dictionary<string, string> identifierDict = new Dictionary<string, string>();
 
         public static bool LinkFiles(string Code, ref int charIndex)
         {
             string newCode;
+            
             StringBuilder filePath = new StringBuilder();
 
             int numQuotes = 0;
