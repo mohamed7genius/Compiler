@@ -24,6 +24,7 @@ const reloadEditorData = () => {
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<span (.*?)>/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/color="(.*?)"/, 'g'), '');
 
     // Init keywords colors
 
@@ -195,6 +196,12 @@ editor.addEventListener('paste', (e) => {
     generateLines();
 });
 
+// Functions
+
+const closeOutput = () => {
+    output.style.display = 'none';
+}
+
 // Toolbar Buttons 
 
 const comment = () => {
@@ -337,12 +344,12 @@ const scan = () => {
     // Set Loading true
     displayLoading();
 
-    const code = getMainText();
+    const code = getMainText().replace('/(\&nbsp\;| )/', ' '); // The code that will be sent to the scanner : add space to the end
 
     // Check the text
     if (code == '' || code == null) {
         // Display error message
-        displayMessage(`There's an error! Please write a code to debug!`);
+        displayMessage(`There's an error! Please write a code to scan!`);
 
         hideLoading();
         return;
@@ -352,6 +359,7 @@ const scan = () => {
     const formData = new FormData();
     formData.append('code', `${code} `);
 
+    console.log("Scanner data ", `${code} `);
 
     fetch(`${location.origin}/Scanner`, {
         method: 'POST',
@@ -361,11 +369,12 @@ const scan = () => {
             // Stop the loading
             hideLoading();
             if (res.status == 200) {
-                scannerData = res.data;
+                scannerData = res.tokens;
+                console.log(res);
                 // remove old elements
-                output.innerHTML = '<h2>Comiler : </h2>';
+                output.innerHTML = '<h2>Comiler : </h2><button onclick="closeOutput()">Close</button>';
                 // Display output and it's data
-                res.data.forEach(el => {
+                res.output.forEach(el => {
                     let newElement = document.createElement('div');
                     newElement.innerText = el;
                     output.appendChild(newElement);
@@ -389,8 +398,17 @@ const parse = () => {
     // Set Loading true
     displayLoading();
 
+    // No scanner data
+    if (!scannerData) {
+        // Display error message
+        displayMessage(`There's an error! Please scan your code first!`);
+
+        hideLoading();
+        return;
+    }
+
     // Send Post Req to Parser 
-    console.log('Main Data', scannerData);
+    console.log('Parser Data', scannerData);
 
     // Set Loading false
     hideLoading();
