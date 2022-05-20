@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Compiler.Controllers
 {
     public class ParserController : Controller
     {
-        public IActionResult Index()
+
+        [HttpPost]
+        public IActionResult Index([FromForm] string code)
         {
-            return View();
+            Debug.WriteLine(code);
+            return Json(new { status = 200, output = "Hello World!" });
         }
     }
 }

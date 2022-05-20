@@ -534,7 +534,41 @@ const parse = () => {
     }
 
     // Send Post Req to Parser 
-    console.log('Parser Data', scannerData);
+    const formData = new FormData();
+    formData.append('code', scannerData.join(" "));
+
+    console.log('Parser Data', scannerData.join(" "));
+
+    fetch(`${location.origin}/Parser`, {
+        method: 'POST',
+        body: formData,
+    }).then(res => res.json())
+        .then(res => {
+            // Stop the loading
+            hideLoading();
+            if (res.status == 200) {
+                parserData = res.data;
+                console.log(res);
+                // remove old elements
+                output.innerHTML = '<h2>Comiler : </h2><button onclick="closeOutput()">Close</button>';
+                // Display output and it's data
+                res.output.forEach(el => {
+                    let newElement = document.createElement('div');
+                    newElement.innerText = el;
+                    output.appendChild(newElement);
+                });
+                output.style.transform = 'translateY(0)';
+                console.log(scannerData);
+            } else {
+                // Display error message
+                displayMessage(`There's an error while parsing your code, please try again`);
+            }
+        }).catch(e => {
+            // Stop the loading
+            hideLoading();
+            // Display error message
+            displayMessage(`There's an error while parsing your code, please try again`);
+        });
 
     // Set Loading false
     hideLoading();

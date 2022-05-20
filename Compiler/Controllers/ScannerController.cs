@@ -351,7 +351,7 @@ namespace Compiler.Controllers
             {
                 if (CheckIdentifier(token))
                 {
-                    AddToTokens(token);
+                    AddToTokens("ID");
                     AddMessageToOutput("Token Text: " + token + "      " + "IDENTIFIER");
                     //scannerOutput.Add("Line :" + lineNumber + " Token Text:" + token + "      " + "IDENTIFIER");
                     Linker.AddIdentifier(token, filePath);
