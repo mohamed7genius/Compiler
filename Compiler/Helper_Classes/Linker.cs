@@ -56,6 +56,8 @@ namespace Compiler.Helper_Classes
 
         public static bool AddIdentifier(string identifierName, string? path)
         {
+            if(path == "hidden")
+                return false;
             try
             {
                 identifierDict.Add(identifierName, path);
