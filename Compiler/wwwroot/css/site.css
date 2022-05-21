@@ -118,7 +118,7 @@ button:hover {
 #numOfLines {
     background: #636e72;
     color: #fff;
-    width: 30px;
+    width: 40px;
     font-size: 16px;
     padding: 1vh 0;
     text-align: center;
@@ -206,7 +206,7 @@ button:hover {
     position: absolute;
     background: rgba(0, 0, 0, .5);
     transition: .5s ease;
-    transform: scaleZ(0);
+    transform: scale3d(0,0,0);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -214,7 +214,7 @@ button:hover {
 }
 
 .browsePopUpcontainer {
-    min-width: 370px;
+    width: 85%;
     padding: 1vh 1vw;
     background: #fff;
     border-radius: 5px;
@@ -237,6 +237,10 @@ button:hover {
 
 #browsePopUp button:hover {
     color: #2d3436;
+}
+
+#browsePopUp #closeHiddenFile{
+    background: var(--darkRed);
 }
 
 #message {
@@ -265,7 +269,7 @@ button:hover {
     overflow-y: scroll;
     overflow-x: hidden;
     transition: .5s ease;
-    transform: scaleZ(0);
+    transform: scale3d(0,0,0);
 }
 
 #autoCompleteContainer li{

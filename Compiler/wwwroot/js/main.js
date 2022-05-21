@@ -15,9 +15,12 @@ const autoCompleteContainer = document.getElementById('autoCompleteContainer');
 let scannerData;
 let hiddenFileData;
 let scannerHiddenFile;
+const keywords = ['If', 'Else', 'Include', 'Loopwhen', 'Iteratewhen', 'Turnback', 'Stop', 'Iow', 'SIow', 'Chlo', 'Chain', 'Iowf',
+                    'SIowf', 'Worthless', 'Loli'];
 
 const reloadEditorData = () => {
     let offset = Cursor.getCurrentCursorPosition(editor);
+    console.log('new offset', offset);
 
     //const oldCaretPosition = getCaretPosition();
 
@@ -32,26 +35,26 @@ const reloadEditorData = () => {
 
     // Init keywords colors
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(If)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Else)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(If)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Else)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Include)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkGreen);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Include)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkGreen);'>${c.trim()}</span>`));
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Loopwhen)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iteratewhen)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Loopwhen)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Iteratewhen)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkCyan);'>${c.trim()}</span>`));
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Turnback)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Stop)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Turnback)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Stop)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightRed);'>${c.trim()}</span>`));
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iow)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(SIow)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Chlo)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Chain)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Iowf)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(SIowf)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Worthless)(\&nbsp\;| ))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Iow)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(SIow)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Chlo)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Chain)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Iowf)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(SIowf)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Worthless)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightBlue);'>${c.trim()}</span>`));
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/((\&nbsp\;| |)(Loli)(\&nbsp\;| |))/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkBlue);'>${c.trim()}</span>`));
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Loli)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkBlue);'>${c.trim()}</span>`));
 
     let editorHTML = editor.innerHTML.split('<div>');
     var start = false;
@@ -114,7 +117,7 @@ const reloadEditorData = () => {
 
     Cursor.setCurrentCursorPosition(offset, editor);
     editor.focus();
-    //setCaretPosition(oldCaretPosition);
+    generateLines();
 };
 
 editor.addEventListener('input', (e) => {
@@ -122,10 +125,31 @@ editor.addEventListener('input', (e) => {
     reloadEditorData();
 });
 
-const printing = (el) => {
-    console.log('Called ', el);
-    editor.innerHTML += el;
-    document.execCommand('insertHTML', false, el);
+const printingAutoComplete = (el, offset, nodeThatWrittenIn, textToComplete) => {
+
+    const editorHTML = editor.innerHTML.split('</div>');
+    for (let i = 0; i < editorHTML.length; i++){
+        if (editorHTML[i].includes(nodeThatWrittenIn)) {
+            const startIndex = editorHTML[i].lastIndexOf(' ') + 1;
+            const endIndex = startIndex + textToComplete.length;
+            console.log(editorHTML[i].substring(startIndex, endIndex), ' ::node:: ', nodeThatWrittenIn, offset, startIndex, endIndex);
+            // e = e.replace(e.substring(startIndex, endIndex), el);
+            editorHTML[i] = editorHTML[i].substring(0, startIndex) + el + editorHTML[i].substring(endIndex);
+            console.log('e after', editorHTML[i]);
+        }
+    }
+    console.log(editorHTML.join('</div>'))
+
+    editor.innerHTML = editorHTML.join('</div>');
+
+    // Set caret posistion to the end of the word
+    Cursor.setCurrentCursorPosition(el.length, editor);
+
+    // Hide Pop Up
+    autoCompleteContainer.style.transform = 'scaleZ(0)';
+
+    // Reload data colors
+    reloadEditorData();
 }
 
 editor.addEventListener('keypress', async (e) => {
@@ -134,47 +158,52 @@ editor.addEventListener('keypress', async (e) => {
 
     //console.log(e);
 
+    // Auto Complete Ctrl + Enter
     if (key == '\n') {
-        // Auto Complete
-        console.log('complete it !');
+
         // Fetch the data
-        const res = await fetch(`${location.origin}/Editor/GetAutoCompleteID`, {
-            method: 'GET',
-        });
-
+        const res = await fetch(`${location.origin}/Editor/GetAutoCompleteID`, { method: 'GET' });
         const data = await res.json();
-
-        let autoCompleteData;
-
-        
-
+      
         if (data.status == 200) {
-            autoCompleteData = Object.keys(data.data);
+            const autoCompleteData = [...Object.keys(data.data)].concat(keywords);
             console.log(autoCompleteData);
+            // Get the text to complete
+            const offset = Cursor.getCurrentCursorPosition(editor);
+            const nodeText = window.getSelection().getRangeAt(0).startContainer.nodeValue;
+            if (!nodeText || nodeText == '') {
+                return;
+            }
+            const nodeThatWrittenIn = nodeText.trim();
+            const textToComplete = nodeThatWrittenIn.substring(nodeThatWrittenIn.lastIndexOf(' ') + 1, offset);
+
             // Pop up to select from
-            console.log(autoCompleteContainer);
             autoCompleteContainer.innerHTML = '';
             autoCompleteData.forEach(el => {
-                let newElement = document.createElement('li');
-                newElement.innerText = el;
-                newElement.setAttribute('onclick', `printing('${el}')`);
-                autoCompleteContainer.appendChild(newElement);
+                if (el.includes(textToComplete)) {
+                    let newElement = document.createElement('li');
+                    newElement.innerText = el;
+                    newElement.setAttribute('onclick', `printingAutoComplete('${el}', '${offset}', '${nodeThatWrittenIn}', '${textToComplete}')`);
+                    autoCompleteContainer.appendChild(newElement);
+                }
             });
-            autoCompleteContainer.style.transform = 'scaleZ(1)';
-            // document.execCommand('insertHTML', false, "Mohamed");
+
+            // There's something to complete the text with
+            if (autoCompleteContainer.children.length > 0) {
+                autoCompleteContainer.style.transform = 'scale3d(1,1,1)';
+            }
+
+        } else {
+            // Display error message
+            displayMessage(`There's an error! Please try again later!`);
         }
     }
 
     if (key == 'Enter') {
-        /* const newElement = document.createElement('div');
-        editor.appendChild(newElement); */
-        /* const selection = window.getSelection();
-        const range = document.createRange();
-        range.setStartAfter(editor.lastChild, 0);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        editor.focus(); */
+        // Wait 25 ms untill the node init then move the cursor to the new position
+        setTimeout(() => {
+            Cursor.setCurrentCursorPosition(Cursor.getCurrentCursorPosition(editor) + 1, editor);
+        }, 25);
     }
 });
 
@@ -223,11 +252,8 @@ const generateLines = () => {
     }
 };
 
-// Cancel the default paste and paste it as a text
+// On user code/text paste
 editor.addEventListener('paste', (e) => {
-    /* e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertHTML', false, text); */
     reloadEditorData();
     generateLines();
 });
@@ -235,7 +261,8 @@ editor.addEventListener('paste', (e) => {
 // Functions
 
 const closeOutput = () => {
-    output.style.display = 'none';
+    output.style.transform = 'translateY(200vh)';
+    editor.style.marginBottom = '';
 }
 
 // Toolbar Buttons 
@@ -268,8 +295,8 @@ const comment = () => {
                         break;
                     }
                 } else if (child.innerText) {
-                    if (editor.innerText[i].nodeValue.includes(startContainerText)) {
-                        editor.innerText[i].nodeValue = editor.innerText[i].nodeValue.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
+                    if (editor.childNodes[i].innerText.includes(startContainerText)) {
+                        editor.childNodes[i].innerText = editor.childNodes[i].innerText.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
                         break;
                     }
                 }
@@ -329,9 +356,6 @@ const comment = () => {
     editor.focus();
 
     reloadEditorData();
-
-    // editor.innerHTML = editor.innerHTML.replace(document.getSelection().focusNode.data, newTd);
-    // document.execCommand('bold', false, newTd);
 };
 
 const unComment = () => {
@@ -380,7 +404,7 @@ const scan = () => {
     // Set Loading true
     displayLoading();
 
-    const code = (getMainText().replace(new RegExp(/(&nbsp;|&#160;| )/, 'g'), ' ')).replace(new RegExp(/(\n)/, 'g'), ' \n '); // The code that will be sent to the scanner : add space to the end
+    const code = getMainText(); // The code that will be sent to the scanner : add space to the end
 
     // Check the text
     if (code == '' || code == null) {
@@ -407,8 +431,15 @@ const scan = () => {
             if (res.status == 200) {
                 scannerData = res.tokens;
                 console.log(res);
+                // Loop throught errors
+                const errors = res.errors;
+                if (errors.length > 0) {
+                    errors.forEach(err => {
+                        console.log('err', err);
+                    });
+                }
                 // remove old elements
-                output.innerHTML = '<h2>Comiler : </h2><button onclick="closeOutput()">Close</button>';
+                output.innerHTML = '<h2>Compiler : </h2><button onclick="closeOutput()">Close</button>';
                 // Display output and it's data
                 res.output.forEach(el => {
                     let newElement = document.createElement('div');
@@ -416,6 +447,7 @@ const scan = () => {
                     output.appendChild(newElement);
                 });
                 output.style.transform = 'translateY(0)';
+                editor.style.marginBottom = '33vh';
                 console.log(scannerData);
             } else {
                 // Display error message
@@ -425,7 +457,7 @@ const scan = () => {
             // Stop the loading
             hideLoading();
             // Display error message
-            displayMessage(`There's an error while scanning your code, please try again`);
+            displayMessage(`There's an error while scanning your code, please try again ${e}`);
         });
 
 };
@@ -481,18 +513,22 @@ const formSubmit = (e) => {
     const formData = new FormData();
     formData.append('file', file.files[0]);
 
-    fetch(`${location.origin}/scanner/ScanHiddenFile`, {
+    fetch(`${location.origin}/File/ReadHiddenFile`, {
         method: 'Post',
         body: formData
     }).then(res => res.json())
-        .then(data => {
+        .then(res => {
             // Stop the loading
             hideLoading();
-            if (data.status == 200) {
+            console.log('res', res, res.status == 400);
+            if (res.status == 200) {
                 // Display PopUp with success message
-                hiddenFileData = data.data;
+                hiddenFileData = res.data;
                 browsePopUp.children[0].children[0].innerText = "Your file is uploaded successfully!";
-                browsePopUp.style.transform = 'scale(1)';
+                browsePopUp.style.transform = 'scale3d(1,1,1)';
+            } else if (res.status == 400) {
+                // Display error message
+                displayMessage(`There's an error! The file cann't be empty!`);
             } else {
                 // Display error message
                 displayMessage(`There's an error while uploading your file, please try again`);
@@ -501,7 +537,7 @@ const formSubmit = (e) => {
             // Stop the loading
             hideLoading();
             // Display error message
-            displayMessage(`There's an error while uploading your file, please try again`);
+            displayMessage(`There's an error while uploading your file, please try again ${e}`);
         });
 
 };
@@ -538,11 +574,7 @@ const scanHiddenFile = () => {
                 });
                 hiddenOutput.style.display = 'block';
                 console.log(scannerData);
-            } else if (res.status == 400) {
-                // Display error message
-                console.log('Error! 2');
-                displayMessage(`There's an error! The file cann't be empty!`);
-            } else {
+            }else {
                 // Display error message
                 displayMessage(`There's an error while scanning your file, please try again`);
             }
@@ -550,7 +582,7 @@ const scanHiddenFile = () => {
             // Stop the loading
             hideLoading();
             // Display error message
-            displayMessage(`There's an error while scanning your code, please try again`);
+            displayMessage(`There's an error while scanning your code, please try again ${e}`);
         });
 };
 
@@ -573,6 +605,11 @@ const parseHiddenFile = () => {
     // Set Loading false
     hideLoading();
 };
+
+const closeHiddenFile = () => {
+    browsePopUp.style.transform = 'scale3d(0,0,0)';
+    hiddenOutput.style.display = 'none';
+}
 
 const displayLoading = () => {
     loading.style.transform = `scaleZ(1)`;

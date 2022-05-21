@@ -17,7 +17,7 @@ namespace Compiler.Helper_Classes
 
             //charIndex++;
 
-            while (numQuotes < 2)
+            while (numQuotes < 2 && charIndex < Code.Length)
             {
                 if (numQuotes == 0 && Code[charIndex] == ' ')
                 {

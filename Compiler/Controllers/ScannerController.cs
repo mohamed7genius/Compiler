@@ -463,49 +463,7 @@ namespace Compiler.Controllers
                     Debug.WriteLine(item.Key + " = " + item.Value);
                 }
             }
-            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
-        }
-
-        [HttpPost]
-        public IActionResult ScanHiddenFile(IFormFile file)
-        {
-            string text;
-
-            if (file == null)
-                return Json(new { status = 404 });
-            try
-            {
-                text = ReadFormFile(file).ToString();
-
-                if(text.Length <= 0)
-                    return Json(new { status = 400 });
-
-                return Json(new { status = 200, data = text });
-            }
-            catch (Exception)
-            {
-                return Json(new { status = 500 });
-            }
-        }
-
-        private StringBuilder ReadFormFile(IFormFile file)
-        {
-            var result = new StringBuilder();
-            try
-            {
-                using (var reader = new StreamReader(file.OpenReadStream()))
-                {
-                    while (reader.Peek() >= 0)
-                        result.AppendLine(reader.ReadLine());
-                }
-            }
-            catch (Exception)
-            {
-                throw new Exception();
-            }
-
-
-            return result;
+            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens, errors = Errors });
         }
     }
 }
