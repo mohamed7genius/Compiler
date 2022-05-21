@@ -15,16 +15,35 @@ const autoCompleteContainer = document.getElementById('autoCompleteContainer');
 let scannerData;
 let hiddenFileData;
 let scannerHiddenFile;
+let navigationData;
+let errors = {};
 const keywords = ['If', 'Else', 'Include', 'Loopwhen', 'Iteratewhen', 'Turnback', 'Stop', 'Iow', 'SIow', 'Chlo', 'Chain', 'Iowf',
                     'SIowf', 'Worthless', 'Loli'];
 
 const removeAllStyles = () => {
     // Remove all spans and styles 
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<span (.*?)>/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<a (.*?)>/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(/&gt;/g, ">");
+    console.log('a before ', editor.innerHTML);
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/a>/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/color="(.*?)"/, 'g'), '');
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/<br>/, 'g'), ' \&nbsp\;');
+}
+
+const goToElement = (e) => {
+    const elementText = e.target.innerText;
+    const firstelement = editor.innerText.indexOf(elementText);
+    const elements = document.getElementsByTagName('a');
+    console.log('total elements ', elements);
+    [...elements].forEach(el => {
+        if (el.innerText == elementText) {
+            el.focus();
+            Cursor.setCurrentCursorPosition(firstelement +elementText.length, editor);
+        }
+    });
 }
 
 const reloadEditorData = (initOffset) => {
@@ -38,9 +57,35 @@ const reloadEditorData = (initOffset) => {
     // Remove all spans and styles 
     removeAllStyles();
 
-    // Init keywords colors
+    // Add navigation to ids
+    if (navigationData) {
+        console.log('before loop', navigationData, Object.keys(navigationData));
+        Object.keys(navigationData).forEach(obj => {
+            console.log('obj', obj);
+            // same file
+            if (!navigationData[obj]) {
+                // editor.innerHTML = editor.innerHTML.replaceAll(String(obj), `<a onclick='${goToElement(obj)}'>${String(obj)}</a>`);
+                editor.innerHTML = editor.innerHTML.replaceAll(obj, "<a onclick='goToElement(event)'>" + obj + "</a>");
+                // console.log('test first', editor.innerHTML.replaceAll(String(obj), `<a onclick="goToElement('${obj}')">${String(obj)}</a>`))
+            } else {
+                // another file
+                // Nav to include link or open it in pop up
+            }
+        })
+    }
 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(If)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
+    // Init errors 
+    if (errors) {
+        Object.keys(errors).forEach(err => {
+            console.log('Err', errors[err]);
+            // editor.innerHTML = editor.innerHTML.substring(0, errors[err].start) + `<span title='error!' class='errorLine'>${errors[err.name]}</span>` + editor.innerHTML.substring(errors[err].end);
+            editor.innerHTML = editor.innerHTML.replace(String(errors[err].Name), `<span title='error!' class='errorLine'>${String(errors[err].Name) }</span>`);
+
+        })
+    }
+
+    // Init keywords colors
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/(If)/, 'g'), (c) => c.replace(c.trim(), `<span title='If statement' style='color: var(--lightPurple);'>${c.trim()}</span>`));
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Else)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--lightPurple);'>${c.trim()}</span>`));
 
     editor.innerHTML = editor.innerHTML.replace(new RegExp(/(Include)/, 'g'), (c) => c.replace(c.trim(), `<span style='color: var(--darkGreen);'>${c.trim()}</span>`));
@@ -159,16 +204,19 @@ editor.addEventListener('keypress', async (e) => {
 
     const key = e.key;
 
-    //console.log(e);
+    // console.log(e);
 
     // Auto Complete Ctrl + Enter
     if (key == '\n') {
+
+        scan();
 
         // Fetch the data
         const res = await fetch(`${location.origin}/Editor/GetAutoCompleteID`, { method: 'GET' });
         const data = await res.json();
       
         if (data.status == 200) {
+            navigationData = data.data;
             const autoCompleteData = [...Object.keys(data.data)].concat(keywords);
             console.log(autoCompleteData);
             // Get the text to complete
@@ -446,12 +494,8 @@ const scan = () => {
                 scannerData = res.tokens;
                 console.log(res);
                 // Loop throught errors
-                const errors = res.errors;
-                if (errors.length > 0) {
-                    errors.forEach(err => {
-                        console.log('err', err);
-                    });
-                }
+                errors = res.errors;
+                reloadEditorData();
                 // remove old elements
                 output.innerHTML = '<h2>Compiler : </h2><button onclick="closeOutput()">Close</button>';
                 // Display output and it's data

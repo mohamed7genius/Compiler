@@ -28,6 +28,7 @@
     --lightRed: #ff7675;
     --darkRed: #d63031;
     --commentColor: #636e72;
+    --error: #f00;
 }
 
 body {
@@ -48,6 +49,10 @@ button {
 
 button:hover {
     background: transparent !important;
+}
+
+.errorLine{
+    border-bottom: 1px dashed var(--error);
 }
 
 .toolbar {
@@ -109,6 +114,11 @@ button:hover {
     margin: 0;
     overflow-y: scroll;
     font-size: 16px;
+}
+
+#editor a{
+    color: #fff;
+    cursor: pointer;
 }
 
 #editor:focus-visible {
