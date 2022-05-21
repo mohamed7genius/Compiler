@@ -16,6 +16,7 @@ let scannerData;
 let hiddenFileData;
 let scannerHiddenFile;
 let navigationData;
+let parserHiddenFile;
 let errors = {};
 const keywords = ['If', 'Else', 'Include', 'Loopwhen', 'Iteratewhen', 'Turnback', 'Stop', 'Iow', 'SIow', 'Chlo', 'Chain', 'Iowf',
                     'SIowf', 'Worthless', 'Loli'];
@@ -708,6 +709,43 @@ const parseHiddenFile = () => {
 
     // Send Post Req to Parser 
     console.log('Parser Data', scannerHiddenFile);
+
+    // Send Post Req to Parser 
+    const formData = new FormData();
+    formData.append('code', scannerHiddenFile.join(" "));
+
+    console.log('Parser Data', scannerHiddenFile.join(" "));
+
+    fetch(`${location.origin}/Parser`, {
+        method: 'POST',
+        body: formData,
+    }).then(res => res.json())
+        .then(res => {
+            // Stop the loading
+            hideLoading();
+            if (res.status == 200) {
+                parserHiddenFile = res.data;
+                console.log(res);
+                // remove old elements
+                hiddenOutput.innerHTML = '<h2>Compiler : </h2>';
+                // Display output and it's data
+                res.output.forEach(el => {
+                    let newElement = document.createElement('div');
+                    newElement.innerText = el;
+                    hiddenOutput.appendChild(newElement);
+                });
+                hiddenOutput.style.transform = 'block';
+                console.log(parserHiddenFile);
+            } else {
+                // Display error message
+                displayMessage(`There's an error while parsing your code, please try again`);
+            }
+        }).catch(e => {
+            // Stop the loading
+            hideLoading();
+            // Display error message
+            displayMessage(`There's an error while parsing your code, please try again`);
+        });
 
     // Set Loading false
     hideLoading();
