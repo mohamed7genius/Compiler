@@ -23,7 +23,7 @@ namespace Compiler.Controllers
             Stack stack = new Stack();
             //Stack <String>stack = new Stack<String>();
             stack.Push("program");
-            string[] token = X(code);
+            string[] token = Split(code);
             Debug.WriteLine(code);
             string Production = stack.Peek();
              Stack s =new Stack();
@@ -83,7 +83,7 @@ namespace Compiler.Controllers
                     {
                        Production = stack.Pop();
                         s.Push(Production);
-                       string [] ProductionArray= X(table[row, column]);
+                       string [] ProductionArray= Split(table[row, column]);
 						for (int i = ProductionArray.Length-1; i >= 0; i--)
 						{
                             if (ProductionArray[i] == "" || ProductionArray[i]==null)
@@ -135,12 +135,40 @@ namespace Compiler.Controllers
             }
             return -1;
         }
-        private string []  X (String Code)
-		{
-            string[] Token = Code.Split(" ");
+
+        private string[] Split(String Code)
+        {
+            string[] Token;
+            int count = 1;
+            //return Token;
+            for (int i = 0; i < Code.Length; i++)
+            {
+                if (Code[i] == ' ')
+                {
+                    count++;
+                }
+            }
+            Token = new String[count];
+            int wordIndex = 0;
+            for (int i = 0; i < Code.Length; i++)
+            {
+                if (Code[i] == ' ')
+                {
+                    wordIndex++;
+
+                }
+                else
+                {
+                    Token[wordIndex] = Token[wordIndex] + Code[i];
+                }
+                continue;
+
+
+
+            }
             return Token;
-		
-		}
+        }
+
 
     }
 }
