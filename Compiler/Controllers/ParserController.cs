@@ -13,7 +13,7 @@ namespace Compiler.Controllers
         [HttpPost]
         public IActionResult Index([FromForm] string code)
         {
-            //code = "Iow ID ( ) { If ( ID < FLOAT_NUM ) { Iow ID ; } }";
+            code = "Iow ID ( Chlo ID , Iow ID ) { Iteratewhen ( ID = INT_NUM ; ID < = INT_NUM ; ID = ID + INT_NUM ) { Iow ID ; } }";
             code = code + " #";
             int IP = 0;
             Stack stack = new Stack();

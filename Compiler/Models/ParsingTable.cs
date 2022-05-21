@@ -4,11 +4,12 @@ namespace Compiler.Models
     public class ParsingTable
     {
 
-        static String[,] table = new string[56, 36];
+
+        static String[,] table = new string[57, 36];
         public static String[,] init()
         {
 
-            for (int row = 0; row < 56; row++)
+            for (int row = 0; row < 57; row++)
             {
                 for (int column = 0; column < 36; column++)
                 {
@@ -341,12 +342,12 @@ namespace Compiler.Models
 
             table[28, 22] = "";
 
-            table[28, 29] = "= expression";
-            table[28, 30] = "term’ additive-expression’ simple-expression’";
-            table[28, 31] = "term’ additive-expression’ simple-expression’";
-            table[28, 32] = "term’ additive-expression’ simple-expression’";
-            table[28, 33] = "term’ additive-expression’ simple-expression’";
-            table[28, 34] = "term’ additive-expression’ simple-expression’";
+            table[28, 29] = "= exp";
+            table[28, 30] = "< relop’ additive-expression";
+            table[28, 31] = "> relop’ additive-expression";
+            table[28, 32] = "! = additive-expression";
+            table[28, 33] = "& & additive-expression";
+            table[28, 34] = "| | additive-expression";
 
             table[29, 9] = "ID";
        
@@ -379,7 +380,7 @@ namespace Compiler.Models
             table[32, 29] = "= relop’";
             table[32, 30] = "< relop’";
             table[32, 31] = "> relop’";
-            table[32, 32] = "!relop’";
+            table[32, 32] = "! relop’";
             table[32, 33] = "&&";
             table[32, 34] = "||";
 
@@ -556,6 +557,16 @@ namespace Compiler.Models
 
             table[54, 35] = "STR";
 
+            table[55, 0] = "expression";
+            table[55, 9] = "expression";
+            table[55, 10] = "expression";
+            table[55, 11] = "expression";
+            table[55, 20] = "expression";
+            table[55, 21] = "expression";
+            table[55, 29] = "relop’ additive-expression";
+
+
+
             return table;
         }
         public static String[] GetNonTerminal()
@@ -616,7 +627,8 @@ namespace Compiler.Models
             "value",
             "comment",
             "include_command",
-            "F_name"
+            "F_name",
+            "exp"
         };
             return NonTerminal;
         }
