@@ -70,6 +70,15 @@ const reloadEditorData = (initOffset) => {
             } else {
                 // another file
                 // Nav to include link or open it in pop up
+                const firstelement = editor.innerText.indexOf(navigationData[obj]);
+                const elements = document.getElementsByTagName('div');
+                console.log('total elements ', elements);
+                [...elements].forEach(el => {
+                    if (el.innerText.includes(elementText)) {
+                        el.focus();
+                        Cursor.setCurrentCursorPosition(firstelement + elementText.length, editor);
+                    }
+                });
             }
         })
     }
@@ -209,7 +218,7 @@ editor.addEventListener('keypress', async (e) => {
     // Auto Complete Ctrl + Enter
     if (key == '\n') {
 
-        scan();
+        scan(true);
 
         // Fetch the data
         const res = await fetch(`${location.origin}/Editor/GetAutoCompleteID`, { method: 'GET' });
@@ -227,6 +236,10 @@ editor.addEventListener('keypress', async (e) => {
             }
             const nodeThatWrittenIn = nodeText.trim();
             const textToComplete = nodeThatWrittenIn.substring(nodeThatWrittenIn.lastIndexOf(' ') + 1, offset);
+
+            if (textToComplete == ' ' || !textToComplete) {
+                return;
+            }
 
             // Pop up to select from
             autoCompleteContainer.innerHTML = '';
@@ -462,7 +475,7 @@ const unComment = () => {
     reloadEditorData();
 };
 
-const scan = () => {
+const scan = (hidden) => {
     // Set Loading true
     displayLoading();
 
@@ -498,15 +511,17 @@ const scan = () => {
                 reloadEditorData();
                 // remove old elements
                 output.innerHTML = '<h2>Compiler : </h2><button onclick="closeOutput()">Close</button>';
-                // Display output and it's data
-                res.output.forEach(el => {
-                    let newElement = document.createElement('div');
-                    newElement.innerText = el;
-                    output.appendChild(newElement);
-                });
-                output.style.transform = 'translateY(0)';
-                editor.style.marginBottom = '33vh';
-                console.log(scannerData);
+                if (!hidden) {
+                    // Display output and it's data
+                    res.output.forEach(el => {
+                        let newElement = document.createElement('div');
+                        newElement.innerText = el;
+                        output.appendChild(newElement);
+                    });
+                    output.style.transform = 'translateY(0)';
+                    editor.style.marginBottom = '33vh';
+                    console.log(scannerData);
+                }
             } else {
                 // Display error message
                 displayMessage(`There's an error while scanning your code, please try again`);
