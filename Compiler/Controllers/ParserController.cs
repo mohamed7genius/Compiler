@@ -13,18 +13,24 @@ namespace Compiler.Controllers
         [HttpPost]
         public IActionResult Index([FromForm] string code)
         {
-            code = "Iow ID ( Chlo ID , Iow ID ) { Iteratewhen ( ID = INT_NUM ; ID < = INT_NUM ; ID = ID + INT_NUM ) { Iow ID ; } }";
+            code = "Worthless ID ( ) \n { Iow ID = INT_NUM ; \n Loopwhen ( ID < ID ) { }";
+                        //code = "Iow ID ( Chlo ID , Iow ID ) \n { Iteratewhen ( ID = INT_NUM ; ID < = INT_NUM ; ID = ID + INT_NUM ) { \n Iow ID ; \n } }";
             code = code + " #";
+            int LineNumber=1;
+
             int IP = 0;
             Stack stack = new Stack();
             stack.Push("program");
             string[] token = X(code);
             Debug.WriteLine(code);
-			while (stack.Peek() != "#")
+            string Production = stack.Peek();
+
+            while (stack.Peek() != "#")
 			{   
 				if (IsTerminal(stack.Peek()))
 				{
                     String h = stack.Peek();
+
 
                     if (stack.Peek() == token[IP])
 					{
@@ -32,26 +38,38 @@ namespace Compiler.Controllers
                         stack.Pop();
                         IP++;
 					}
+
 					else
 					{
                         Debug.WriteLine("Error terminal");
-                        //stack.Pop();
+                        break;
 					}
-                
-				}
+                    if (token[IP] == "\n")
+                    {
+                        Debug.WriteLine("Line " + LineNumber + " Match"+" Rule : " +Production);
+                        LineNumber++;
+                        IP++;
+                    }
+
+                }
 				else
                 {
                     String j = stack.Peek();
                     var row = GetNonTerminalIndex(stack.Peek());
                     var column = GetTerminalIndex(token[IP]);
+                    if(column == -1)
+                    {
+                        Debug.WriteLine("Erorr");
+                        break;
+                    }
 					if (table[row, column]==null)
 					{
                         Debug.WriteLine(stack.Peek()+ "Error");
-                        //stack.Pop();
+                        break;
 					}
 					else if (table[row, column] != null)
                     {
-                       string Production = stack.Pop();
+                       Production = stack.Pop();
                        string [] ProductionArray= X(table[row, column]);
 						for (int i = ProductionArray.Length-1; i >= 0; i--)
 						{

@@ -381,8 +381,8 @@ namespace Compiler.Models
             table[32, 30] = "< relop’";
             table[32, 31] = "> relop’";
             table[32, 32] = "! relop’";
-            table[32, 33] = "&&";
-            table[32, 34] = "||";
+            table[32, 33] = "& &";
+            table[32, 34] = "| |";
 
             table[33, 0] = "";
 
@@ -550,8 +550,8 @@ namespace Compiler.Models
             table[51, 20] = "INT_NUM";
             table[51, 21] = "FLOAT_NUM";
 
-            table[52, 15] = "$$$ STR";
-            table[52, 16] = "/$ STR $/";
+            table[52, 15] = "$ $ $ STR";
+            table[52, 16] = "/ $ STR $ /";
 
             table[53, 8] = "include ( F_name.txt ) ;";
 
