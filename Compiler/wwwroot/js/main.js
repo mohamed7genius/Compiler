@@ -18,8 +18,17 @@ let scannerHiddenFile;
 const keywords = ['If', 'Else', 'Include', 'Loopwhen', 'Iteratewhen', 'Turnback', 'Stop', 'Iow', 'SIow', 'Chlo', 'Chain', 'Iowf',
                     'SIowf', 'Worthless', 'Loli'];
 
-const reloadEditorData = () => {
-    let offset = Cursor.getCurrentCursorPosition(editor);
+const removeAllStyles = () => {
+    // Remove all spans and styles 
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<span (.*?)>/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/color="(.*?)"/, 'g'), '');
+    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<br>/, 'g'), ' \&nbsp\;');
+}
+
+const reloadEditorData = (initOffset) => {
+    let offset = initOffset ? initOffset : Cursor.getCurrentCursorPosition(editor);
     console.log('new offset', offset);
 
     //const oldCaretPosition = getCaretPosition();
@@ -27,11 +36,7 @@ const reloadEditorData = () => {
     const beforeEditingHtml = editor.innerHTML;
 
     // Remove all spans and styles 
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<span (.*?)>/, 'g'), '');
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<\/span>/, 'g'), '');
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/style="(.*?)"/, 'g'), '');
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/color="(.*?)"/, 'g'), '');
-    editor.innerHTML = editor.innerHTML.replace(new RegExp(/<br>/, 'g'), ' \&nbsp\;');
+    removeAllStyles();
 
     // Init keywords colors
 
@@ -61,7 +66,6 @@ const reloadEditorData = () => {
 
     for (let i = 0; i < editorHTML.length; i++) {
 
-        console.log('test', editorHTML[i]);
 
         // Single Line Comment
         if (editorHTML[i].includes('$$$')) {
@@ -127,23 +131,22 @@ editor.addEventListener('input', (e) => {
 
 const printingAutoComplete = (el, offset, nodeThatWrittenIn, textToComplete) => {
 
+    // Remove all spans and styles 
+    removeAllStyles();
+
     const editorHTML = editor.innerHTML.split('</div>');
     for (let i = 0; i < editorHTML.length; i++){
         if (editorHTML[i].includes(nodeThatWrittenIn)) {
-            const startIndex = editorHTML[i].lastIndexOf(' ') + 1;
+            const startIndex = editorHTML[i].lastIndexOf(textToComplete);
             const endIndex = startIndex + textToComplete.length;
-            console.log(editorHTML[i].substring(startIndex, endIndex), ' ::node:: ', nodeThatWrittenIn, offset, startIndex, endIndex);
-            // e = e.replace(e.substring(startIndex, endIndex), el);
             editorHTML[i] = editorHTML[i].substring(0, startIndex) + el + editorHTML[i].substring(endIndex);
-            console.log('e after', editorHTML[i]);
         }
     }
-    console.log(editorHTML.join('</div>'))
 
     editor.innerHTML = editorHTML.join('</div>');
 
     // Set caret posistion to the end of the word
-    Cursor.setCurrentCursorPosition(el.length, editor);
+    Cursor.setCurrentCursorPosition(Number(offset) + el.length - textToComplete.length, editor);
 
     // Hide Pop Up
     autoCompleteContainer.style.transform = 'scaleZ(0)';
@@ -217,39 +220,31 @@ const getMainText = () => {
 };
 
 const generateLines = () => {
-    let length = 0;
-    // To fix lines on paste , count the divs inside other divs
+
+    let spanLength = 0;
+
+    // To fix lines on paste , count the span which contains the colors (extra child number)
     [...editor.children].forEach(el => {
-        if (el.tagName != 'SPAN') {
-            length++;
+        if (el.tagName == 'SPAN') {
+            spanLength++;
         }
     });
 
-    if (length === 0 && numOfLines.children.length === 0) {
-        // There's at least one line
-        // Create New Number
-        const newNum = document.createElement('div');
-        newNum.className = 'number';
-        newNum.innerText = Number(numOfLines.children.length) + 1;
-        // Append to the dom
-        numOfLines.appendChild(newNum);
-    }
-    while (numOfLines.children.length <= length) {
-        // Create New Number
-        const newNum = document.createElement('div');
-        newNum.className = 'number';
-        newNum.innerText = Number(numOfLines.children.length) + 1;
+    const length = editor.childElementCount + 1 - spanLength;
 
-        // Append to the dom
-        numOfLines.appendChild(newNum);
-    }
-
-    if (numOfLines.children.length > length) {
-        while (numOfLines.children.length > length + 1) {
-            // remove to the dom
-            numOfLines.removeChild(numOfLines.children[numOfLines.children.length - 1]);
+    if (numOfLines.children.length != length) {
+        // Remove old children
+        numOfLines.innerHTML = '';
+        for (let i = 0; i < length; i++) {
+            // Create new child number
+            const newNum = document.createElement('div');
+            newNum.className = 'number';
+            newNum.innerText = Number(numOfLines.children.length) + 1;
+            // Append to the dom
+            numOfLines.appendChild(newNum);
         }
     }
+
 };
 
 // On user code/text paste
@@ -259,29 +254,27 @@ editor.addEventListener('paste', (e) => {
 });
 
 // Functions
-
 const closeOutput = () => {
     output.style.transform = 'translateY(200vh)';
     editor.style.marginBottom = '';
 }
 
 // Toolbar Buttons 
-
 const comment = () => {
     const range = window.getSelection().getRangeAt(0);
     let offset = Cursor.getCurrentCursorPosition(editor);
 
     if (range) {
         console.log(range, window.getSelection().rangeCount);
-        const startContainerText = range.startContainer.nodeValue.trim();
-        const endContainerText = range.endContainer.nodeValue.trim();
+        const startContainerText = range.startContainer.nodeValue;
+        const endContainerText = range.endContainer.nodeValue;
 
         const startPoint = range.startOffset;
         const endPoint = range.endOffset;
 
         // On the same line
-        if (startContainerText == endContainerText) {
-            const textToReplace = startContainerText.substring(startPoint, endPoint).trim();
+        if (startContainerText.trim() == endContainerText.trim()) {
+            const textToReplace = startContainerText.trim().substring(startPoint, endPoint).trim();
 
             for (let i = 0; i < editor.childNodes.length; i++) {
                 let child = editor.childNodes[i];
@@ -290,12 +283,12 @@ const comment = () => {
                 }
 
                 if (child.nodeValue) {
-                    if (editor.childNodes[i].nodeValue.includes(startContainerText)) {
+                    if (editor.childNodes[i].nodeValue.includes(startContainerText.trim())) {
                         editor.childNodes[i].nodeValue = editor.childNodes[i].nodeValue.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
                         break;
                     }
                 } else if (child.innerText) {
-                    if (editor.childNodes[i].innerText.includes(startContainerText)) {
+                    if (editor.childNodes[i].innerText.includes(startContainerText.trim())) {
                         editor.childNodes[i].innerText = editor.childNodes[i].innerText.replace(`${textToReplace}`, `/$ ${textToReplace} $/`);
                         break;
                     }
@@ -303,15 +296,13 @@ const comment = () => {
 
             }
 
-            Cursor.setCurrentCursorPosition(offset, editor);
-            editor.focus();
-            reloadEditorData();
+            reloadEditorData(offset+4);
             return;
         }
 
         // On multi lines
-        const startTextToReplace = startContainerText.substring(startPoint).trim();
-        const endTextToReplace = endContainerText.substring(0, endPoint).trim();
+        const startTextToReplace = startContainerText.substring(startPoint);
+        const endTextToReplace = endContainerText.substring(0, endPoint);
 
         console.log('Text ', startTextToReplace, endTextToReplace)
 
@@ -323,28 +314,24 @@ const comment = () => {
             }
 
             if (child.nodeValue) {// Comment Open Tag
-                if (child.nodeValue.includes(startTextToReplace)) {
-                    console.log('Test Start')
-                    child.nodeValue = ` /$ ${child.nodeValue}`;
+                if (child.nodeValue.includes(startTextToReplace.trim())) {
+                    child.nodeValue = `${child.nodeValue.substring(0, startPoint)} /$ ${child.nodeValue.substring(startPoint)}`;
                 }
 
                 // Comment Close Tag
-                if (child.nodeValue.includes(endTextToReplace)) {
-                    console.log('Test End')
-                    child.nodeValue = `${child.nodeValue} $/ `;
+                if (child.nodeValue.includes(endTextToReplace.trim())) {
+                    child.nodeValue = `${child.nodeValue.substring(0, endPoint)} $/ ${child.nodeValue.substring(endPoint)}`;
                     break;
                 }
             } else if (child.innerText) {
                 // Comment Open Tag
-                if (child.innerText.includes(startTextToReplace)) {
-                    console.log('Test Start')
-                    child.innerText = ` /$ ${child.innerText}`;
+                if (child.innerText.includes(startTextToReplace.trim())) {
+                    child.innerText = `${child.innerText.substring(0, startPoint)} /$ ${child.innerText.substring(startPoint)}`;
                 }
 
                 // Comment Close Tag
-                if (child.innerText.includes(endTextToReplace)) {
-                    console.log('Test End')
-                    child.innerText = `${child.innerText} $/ `;
+                if (child.innerText.includes(endTextToReplace.trim())) {
+                    child.innerText = `${child.innerText.substring(0, endPoint)} $/ ${child.innerText.substring(endPoint)}`;
                     break;
                 }
             }
@@ -363,35 +350,62 @@ const unComment = () => {
     let offset = Cursor.getCurrentCursorPosition(editor);
     if (range) {
         console.log(range, window.getSelection().rangeCount);
-        const startContainerText = range.startContainer.nodeValue.trim();
-        const endContainerText = range.endContainer.nodeValue.trim();
+        const startContainerText = range.startContainer.nodeValue;
+        const endContainerText = range.endContainer.nodeValue;
 
         const startPoint = range.startOffset;
-        const endPoint = range.endOffset;
+        const endPoint = range.endOffset - 2;
 
+        let editorHTML = editor.innerHTML.split('</div>');
         let editorText = editor.innerText.split('\n');
+        console.log('before', editorHTML);
 
-        for (let i = 0; i < editorText.length; i++) {
-            // On the same line
-            if (startContainerText == endContainerText && editorText[i].includes(startContainerText) && editorText[i].includes(endContainerText)) {
-                editorText[i] = editorText[i].replace(new RegExp(/\/\$/, 'g'), '');
-                editorText[i] = editorText[i].replace(new RegExp(/\$\//, 'g'), '');
-                break;
+        // Single line comment
+        if (startContainerText.trim() == endContainerText.trim()) {
+            for (let i = 0; i < editorText.length; i++) {
+                let textToCompare = editorText[i].replace(new RegExp(/<span (.*?)>/, 'g'), '');
+                textToCompare = textToCompare.replace(new RegExp(/<\/span>/, 'g'), '');
+                if (textToCompare.includes(startContainerText.trim()) && textToCompare.includes(endContainerText.trim())) {
+                    console.log('entered before', editorText[i])
+                    editorText[i] = editorText[i].replace('/$', '');
+                    editorText[i] = editorText[i].replace('$/', '');
+                    console.log('entered after', editorText[i])
+                    break;
+                }
             }
 
+            editor.innerText = editorText.join('\n');
+            reloadEditorData(offset - 4);
+
+            return;
+        }
+
+
+        // Mulit line comment
+
+        for (let i = 0; i < editorHTML.length; i++) {
+
+            let htmlToCompare = editorText[i].replace(new RegExp(/<span (.*?)>/, 'g'), '');
+            htmlToCompare = htmlToCompare.replace(new RegExp(/<\/span>/, 'g'), '');
+
+            console.log('testing ', htmlToCompare.includes(startContainerText.trim()), htmlToCompare.includes(endContainerText.trim()));
             // Comment Open Tag
-            if (editorText[i].includes(startContainerText)) {
-                editorText[i] = editorText[i].replace(new RegExp(/\/\$/, 'g'), '');
+            if (htmlToCompare.includes(startContainerText.trim())) {
+                editorHTML[i] = editorHTML[i].replace('/$', '');
             }
+
+            console.log('close tag', htmlToCompare.nodeText, endPoint);
 
             // Comment Close Tag
-            if (editorText[i].includes(endContainerText)) {
-                editorText[i] = editorText[i].replace(new RegExp(/\$\//, 'g'), '');
+            if (htmlToCompare.includes(endContainerText.trim()) || htmlToCompare.indexOf('$/') == endPoint ) {
+                console.log('before ', editorHTML[i]);
+                editorHTML[i] = editorHTML[i].replace('$\/', '');
+                console.log('after ', editorHTML[i]);
                 break;
             }
         }
 
-        editor.innerText = editorText.join('\n');
+        editor.innerHTML = editorHTML.join('</div>');
     }
 
     Cursor.setCurrentCursorPosition(offset, editor);
