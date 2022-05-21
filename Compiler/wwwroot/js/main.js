@@ -58,7 +58,7 @@ const reloadEditorData = (initOffset) => {
     removeAllStyles();
 
     // Add navigation to ids
-    if (navigationData) {
+    /*if (navigationData) {
         console.log('before loop', navigationData, Object.keys(navigationData));
         Object.keys(navigationData).forEach(obj => {
             console.log('obj', obj);
@@ -81,7 +81,7 @@ const reloadEditorData = (initOffset) => {
                 });
             }
         })
-    }
+    }*/
 
     // Init errors 
     if (errors) {
