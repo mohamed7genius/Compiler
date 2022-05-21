@@ -94,7 +94,7 @@ namespace Compiler.Controllers
                 //handeling the end of the line
                 if (EndOfLine(code, i))
                 {
-                    AddToTokens("\n");
+                    AddToTokens(" \n");
                     continue;
                 }
 

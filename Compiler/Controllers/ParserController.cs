@@ -77,7 +77,7 @@ namespace Compiler.Controllers
 					if (table[row, column]==null)
 					{
                         Debug.WriteLine(stack.Peek()+ "Error");
-                        break;
+                        return Json(new { status = 404 });
 					}
 					else if (table[row, column] != null)
                     {

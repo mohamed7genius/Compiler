@@ -574,6 +574,7 @@ const parse = () => {
                     output.appendChild(newElement);
                 });
                 output.style.transform = 'translateY(0)';
+                editor.style.marginBottom = '33vh';
                 console.log(scannerData);
             } else {
                 // Display error message
