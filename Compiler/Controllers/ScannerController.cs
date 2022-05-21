@@ -317,7 +317,7 @@ namespace Compiler.Controllers
             char firstCharInToken = token[0];
             char currentChar = code[currentCodeIndex - 1];
 
-            if (IsDigit(firstCharInToken) && IsWhiteSpace(currentChar))
+            if (IsDigit(firstCharInToken) && !IsWhiteSpace(currentChar))
             {
                 if (IsDigit(currentChar))
                 {
