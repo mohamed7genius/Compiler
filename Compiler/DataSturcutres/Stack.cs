@@ -40,5 +40,9 @@ namespace Compiler.DataSturcutres
 
             return Array[Index - 1];
         }
+        public string Peek()
+        {
+            return Array[Index-1];
+        }
     }
 }

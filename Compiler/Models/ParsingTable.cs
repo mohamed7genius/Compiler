@@ -4,114 +4,20 @@ namespace Compiler.Models
     public class ParsingTable
     {
 
-        static String[,] table = new string[56, 36];
+
+        static String[,] table = new string[57, 36];
         public static String[,] init()
         {
 
-            for (int row = 0; row < 99; row++)
+            for (int row = 0; row < 57; row++)
             {
-                for (int column = 0; column < 127; column++)
+                for (int column = 0; column < 36; column++)
                 {
                     table[row, column] = null;
                 }
             }
-            string[] NonTerminal =
-        {
-            "program",
-            "declaration-list",
-            "declaration-list’",
-            "declaration",
-            "declaration’",
-            "var",
-            "var-declaration",
-            "type-specifier",
-            "fun-declaration",
-            "params",
-            "param-list",
-            "param-list’",
-            "param",
-            "compound-stmt",
-            "compound-stmt’",
-            "local-declarations",
-            "local-declarations’",
-            "statement-list",
-            "statement-list’",
-            "statement",
-            "expression-stmt",
-            "selection-stmt",
-            "selection-stmt’",
-            "iteration-stmt",
-            "Loop-statement",
-            "Iterate-statement",
-            "jump-stmt",
-            "expression",
-            "expression’",
-            "id-assign",
-            "simple-expression",
-            "simple-expression’",
-            "relop",
-            "relop’",
-            "additive-expression",
-            "additive-expression’",
-            "addop",
-            "term",
-            "term’",
-            "mulop",
-            "factor",
-            "factor’",
-            "call",
-            "args",
-            "arg-list",
-            "arg-list’",
-            "num",
-            "Unsigned num",
-            "Signed num",
-            "pos-num",
-            "neg-num",
-            "value",
-            "comment",
-            "include_command",
-            "F_name"
-        };
-            string[] terminal =
-        {
-            "(",
-            "Iow",
-            "SIow",
-            "Chlo",
-            "Chain",
-            "Iowf",
-            "SIowf",
-            "Worthless",
-            "include",
-            "ID",
-            "+",
-            "-",
-            "*",
-            "$(comment)",
-            "/",
-            "{",
-            "#",
-            ")",
-            ",",
-            "}",
-            "INT_NUM",
-            "FLOAT_NUM",
-            ";",
-            "if",
-            "Loopwhen",
-            "Iteratewhen",
-            "Turnback",
-            "Stop",
-            "else",
-            "=",
-            "<",
-            ">",
-            "!",
-            "&",
-            "|",
-            "STR",
-        };
+
+  
             table[0, 1] = "declaration-list";
             table[0, 2] = "declaration-list";
             table[0, 3] = "declaration-list";
@@ -119,7 +25,7 @@ namespace Compiler.Models
             table[0, 5] = "declaration-list";
             table[0, 6] = "declaration-list";
             table[0, 7] = "declaration-list";
-            table[0, 8] = " include_command";
+            table[0, 8] = "include_command";
 
             table[0, 13] = "comment";
             table[0, 14] = "comment";
@@ -191,13 +97,13 @@ namespace Compiler.Models
             table[8, 0] = "( params ) compound-stmt";
    
 
-            table[9, 1] = " param-list";
-            table[9, 2] = " param-list";
-            table[9, 3] = " param-list";
-            table[9, 4] = " param-list";
-            table[9, 5] = " param-list";
-            table[9, 6] = " param-list";
-            table[9, 7] = " param-list";
+            table[9, 1] = "param-list";
+            table[9, 2] = "param-list";
+            table[9, 3] = "param-list";
+            table[9, 4] = "param-list";
+            table[9, 5] = "param-list";
+            table[9, 6] = "param-list";
+            table[9, 7] = "param-list";
 
             table[9, 17] = "";
  
@@ -376,7 +282,7 @@ namespace Compiler.Models
           
 
       
-            table[21, 23] = "if ( expression ) statement selection-stmt’";
+            table[21, 23] = "If ( expression ) statement selection-stmt’";
 
 
 
@@ -397,7 +303,7 @@ namespace Compiler.Models
             table[22, 25] = "";
             table[22, 26] = "";
             table[22, 27] = "";
-            table[22, 28] = "else statement";
+            table[22, 28] = "Else statement";
 
 
 
@@ -415,24 +321,33 @@ namespace Compiler.Models
             table[26, 27] = "Turnback expression ;";
 
 
-            table[27, 0] = "simple-expression";
+            table[27, 0] = "( expression ) term’ additive-expression’ simple-expression’";
  
             table[27, 9] = "id-assign expression’";
-            table[27, 10] = "id-assign expression’";
-            table[27, 11] = "id-assign expression’";
+            table[27, 10] = "num term’ additive-expression’ simple-expression’";
+            table[27, 11] = "num term’ additive-expression’ simple-expression’";
       
-            table[27, 20] = "simple-expression";
-            table[27, 21] = "simple-expression";
+            table[27, 20] = "num term’ additive-expression’ simple-expression’";
+            table[27, 21] = "num term’ additive-expression’ simple-expression’";
 
 
+            table[28, 0] = "call term’ additive-expression’ simple-expression’";
+            table[28, 10] = "term’ additive-expression’ simple-expression’";
+            table[28, 11] = "term’ additive-expression’ simple-expression’";
 
+            table[28, 12] = "term’ additive-expression’ simple-expression’";
+            table[28, 14] = "term’ additive-expression’ simple-expression’";
             table[28, 17] = "";
             table[28, 18] = "";
 
             table[28, 22] = "";
 
-            table[28, 29] = "= expression";
-
+            table[28, 29] = "= exp";
+            table[28, 30] = "< relop’ additive-expression";
+            table[28, 31] = "> relop’ additive-expression";
+            table[28, 32] = "! = additive-expression";
+            table[28, 33] = "& & additive-expression";
+            table[28, 34] = "| | additive-expression";
 
             table[29, 9] = "ID";
        
@@ -463,11 +378,11 @@ namespace Compiler.Models
 
 
             table[32, 29] = "= relop’";
-            table[32, 30] = " < relop’";
+            table[32, 30] = "< relop’";
             table[32, 31] = "> relop’";
-            table[32, 32] = "!relop’";
-            table[32, 33] = "&&";
-            table[32, 34] = "||";
+            table[32, 32] = "! relop’";
+            table[32, 33] = "& &";
+            table[32, 34] = "| |";
 
             table[33, 0] = "";
 
@@ -491,16 +406,20 @@ namespace Compiler.Models
             table[34, 20] = "term additive-expression’";
             table[34, 21] = "term additive-expression’";
 
-            table[35, 0] = "";
-                  
-            table[35, 9] = "";
+   
             table[35, 10] = "addop term additive-expression’";
             table[35, 11] = "addop term additive-expression’";
                   
             table[35, 17] = "";
             table[35, 18] = "";
-            table[35, 20] = "";
+            table[35, 22] = "";
             table[35, 21] = "";
+            table[35, 29] = "";
+            table[35, 30] = "";
+            table[35, 31] = "";
+            table[35, 32] = "";
+            table[35, 33] = "";
+            table[35, 34] = "";
          
             table[36, 10] = "+";
             table[36, 11] = "-";
@@ -531,7 +450,13 @@ namespace Compiler.Models
             table[38, 21] = "";
             table[38, 22] = "";
 
-            table[38, 35] = "";
+            table[38, 29] = "";
+            table[38, 30] = "";
+            table[38, 31] = "";
+            table[38, 32] = "";
+            table[38, 33] = "";
+            table[38, 34] = "";
+
 
 
             table[39, 12] = "*";
@@ -555,6 +480,7 @@ namespace Compiler.Models
             table[41, 10] = "";
             table[41, 11] = "";
             table[41, 12] = "";
+            table[41, 14] = "";
 
             table[41, 17] = "";
             table[41, 18] = "";
@@ -562,6 +488,12 @@ namespace Compiler.Models
             table[41, 20] = "";
             table[41, 21] = "";
             table[41, 22] = "";
+            table[41, 29] = "";
+            table[41, 30] = "";
+            table[41, 31] = "";
+            table[41, 32] = "";
+            table[41, 33] = "";
+            table[41, 34] = "";
 
 
 
@@ -595,11 +527,11 @@ namespace Compiler.Models
             table[45, 18] = ", expression arg-list’";
 
 
-            table[46, 10] = "Signed num";
-            table[46, 11] = "Signed num";
+            table[46, 10] = "Signed-num";
+            table[46, 11] = "Signed-num";
 
-            table[46, 20] = "Unsigned num";
-            table[46, 21] = "Unsigned num";
+            table[46, 20] = "Unsigned-num";
+            table[46, 21] = "Unsigned-num";
 
 
             table[47, 20] = "value";
@@ -618,14 +550,131 @@ namespace Compiler.Models
             table[51, 20] = "INT_NUM";
             table[51, 21] = "FLOAT_NUM";
 
-            table[52, 15] = "$$$ STR";
-            table[52, 16] = "/$ STR $/";
+            table[52, 15] = "$ $ $ STR";
+            table[52, 16] = "/ $ STR $ /";
 
             table[53, 8] = "include ( F_name.txt ) ;";
 
             table[54, 35] = "STR";
 
+            table[55, 0] = "expression";
+            table[55, 9] = "expression";
+            table[55, 10] = "expression";
+            table[55, 11] = "expression";
+            table[55, 20] = "expression";
+            table[55, 21] = "expression";
+            table[55, 29] = "relop’ additive-expression";
+
+
+
             return table;
         }
+        public static String[] GetNonTerminal()
+        {
+            string[] NonTerminal =
+{
+            "program",
+            "declaration-list",
+            "declaration-list’",
+            "declaration",
+            "declaration’",
+            "var",
+            "var-declaration",
+            "type-specifier",
+            "fun-declaration",
+            "params",
+            "param-list",
+            "param-list’",
+            "param",
+            "compound-stmt",
+            "compound-stmt’",
+            "local-declarations",
+            "local-declarations’",
+            "statement-list",
+            "statement-list’",
+            "statement",
+            "expression-stmt",
+            "selection-stmt",
+            "selection-stmt’",
+            "iteration-stmt",
+            "Loop-statement",
+            "Iterate-statement",
+            "jump-stmt",
+            "expression",
+            "expression’",
+            "id-assign",
+            "simple-expression",
+            "simple-expression’",
+            "relop",
+            "relop’",
+            "additive-expression",
+            "additive-expression’",
+            "addop",
+            "term",
+            "term’",
+            "mulop",
+            "factor",
+            "factor’",
+            "call",
+            "args",
+            "arg-list",
+            "arg-list’",
+            "num",
+            "Unsigned-num",
+            "Signed-num",
+            "pos-num",
+            "neg-num",
+            "value",
+            "comment",
+            "include_command",
+            "F_name",
+            "exp"
+        };
+            return NonTerminal;
+        }
+        public static String[] GetTerminal()
+        {
+            string[] terminal =
+{
+            "(",
+            "Iow",
+            "SIow",
+            "Chlo",
+            "Chain",
+            "Iowf",
+            "SIowf",
+            "Worthless",
+            "include",
+            "ID",
+            "+",
+            "-",
+            "*",
+            "$(comment)",
+            "/",
+            "{",
+            "#",
+            ")",
+            ",",
+            "}",
+            "INT_NUM",
+            "FLOAT_NUM",
+            ";",
+            "If",
+            "Loopwhen",
+            "Iteratewhen",
+            "Turnback",
+            "Stop",
+            "Else",
+            "=",
+            "<",
+            ">",
+            "!",
+            "&",
+            "|",
+            "STR",
+        };
+            return terminal;
+        }
+
     }
 }
