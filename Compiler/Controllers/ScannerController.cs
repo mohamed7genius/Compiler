@@ -85,6 +85,7 @@ namespace Compiler.Controllers
                 //handeling the end of the line
                 if (EndOfLine(code, i))
                 {
+                    AddToTokens("\n");
                     continue;
                 }
 
@@ -92,7 +93,6 @@ namespace Compiler.Controllers
                 //setting index of the beginning of each token
                 if (!IsWhiteSpace(code[i]) && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
-
                     SetTokenStartIndex(i);
                 }
 
@@ -112,7 +112,16 @@ namespace Compiler.Controllers
                     // Handeling Include
                     if (currentState == INCLUDE_STATE)
                     {
-                        Include(code, ref i);
+                        string tempToken = token;
+                        if (Include(code, ref i) == 2)
+                        {
+                            SetTokenEndIndex(--i);
+                            token = tempToken;
+                            SetErrorDetails();
+                            InitValues();
+                            continue;
+                        }
+                            
                     }
                     else if (acceptedState)
                     {
@@ -183,7 +192,7 @@ namespace Compiler.Controllers
             return codeReplaced;
         }
 
-        private bool IsWhiteSpace(char c)
+        public bool IsWhiteSpace(char c)
         {
             return c == ' ' || c == (char)160;
         }
@@ -283,12 +292,15 @@ namespace Compiler.Controllers
             return false;
         }
 
-        private void Include(string code, ref int i)
+        private int Include(string code, ref int i)
         {
-            if (Linker.LinkFiles(code, ref i) == false)
+            int returnValue = Linker.LinkFiles(code, ref i);
+            if (returnValue != 0)
             {
                 InitValues();
             }
+
+            return returnValue;
         }
 
         private void CheckConstant(string code, string token, int currentCodeIndex)
@@ -296,7 +308,7 @@ namespace Compiler.Controllers
             char firstCharInToken = token[0];
             char currentChar = code[currentCodeIndex - 1];
 
-            if (IsDigit(firstCharInToken) && currentChar != ' ')
+            if (IsDigit(firstCharInToken) && IsWhiteSpace(currentChar))
             {
                 if (IsDigit(currentChar))
                 {
@@ -315,7 +327,7 @@ namespace Compiler.Controllers
             scannerOutput.Add("Total NO of errors: " + totalErrors);
         }
 
-        private void InitValues()
+        public void InitValues()
         {
             token = "";
             currentState = (int)State.A;

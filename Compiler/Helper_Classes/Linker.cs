@@ -7,7 +7,7 @@ namespace Compiler.Helper_Classes
     {
         public static Dictionary<string, string> identifierDict = new Dictionary<string, string>();
 
-        public static bool LinkFiles(string Code, ref int charIndex)
+        public static int LinkFiles(string Code, ref int charIndex)
         {
             string newCode;
             
@@ -15,25 +15,41 @@ namespace Compiler.Helper_Classes
 
             int numQuotes = 0;
 
-            //charIndex++;
-
-            while (numQuotes < 2 && charIndex < Code.Length)
+            while (numQuotes < 2 && Code[charIndex] != '\n' && Code[charIndex] != ';' && charIndex < Code.Length)
             {
-                if (numQuotes == 0 && Code[charIndex] == ' ')
+                if (numQuotes == 0 && ScannerController.Instance.IsWhiteSpace(Code[charIndex]))
                 {
-                    charIndex++;
-                    continue;
+                    if(charIndex < Code.Length -  1)
+                    {
+                        charIndex++;
+                        continue;
+                    }
+                    else
+                    {
+                        return 2;
+                    }
                 }
-                if (Code[charIndex] != '\"')
+                if (numQuotes > 0 && Code[charIndex] != '\"')
                 {
                     filePath.Append(Code[charIndex]);
                 }
-                else
+                else if(Code[charIndex] == '\"')
                 {
                     numQuotes++;
                 }
+                else
+                {
+                    return 2;
+                }
 
                 charIndex++;
+            }
+
+            if (numQuotes < 2 || filePath == null)
+            {
+                if(Code[charIndex] == ';')
+                    charIndex++;
+                return 2;
             }
 
             try
@@ -45,14 +61,14 @@ namespace Compiler.Helper_Classes
             }
             catch (Exception)
             {
-                return false;
+                return 1;
             }
 
             ScannerController.Instance.scannerOutput.Add("--->" + filePath);
             ScannerController.Instance.ScanCode(newCode, filePath.ToString());
             ScannerController.Instance.scannerOutput.Add("<---" + filePath);
 
-            return true;
+            return 0;
         }
 
         public static bool AddIdentifier(string identifierName, string? path)
