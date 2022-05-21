@@ -26,6 +26,7 @@ namespace Compiler.Controllers
         Comment comment = Comment.NoComment;
         bool acceptedState = false;
         bool canBeConstant = true;
+        string commentStr = "";
         public List<string> scannerOutput = new List<string>();
         public List<string> tokensOutput = new List<string>();
 
@@ -69,22 +70,31 @@ namespace Compiler.Controllers
                     if(ChecktMultilineCommentStart(code, i))
                     {
                         comment = Comment.MultiLine;
+                        commentStr = "/ $ STR $ /";
                     }
 
                     if (CheckSingleLineCommentStart(code, i))
                     {
                         i += 2;
                         comment = Comment.SingleLine;
+                        commentStr = "$ $ $ STR";
                     }
 
                     if (comment != Comment.NoComment)
                         continue;
                 }
 
+                if (commentStr != "")
+                {
+                    AddToTokens(commentStr);
+                    commentStr = "";
+                }
+
                 //--------------------------------
                 //handeling the end of the line
                 if (EndOfLine(code, i))
                 {
+                    AddToTokens("\n");
                     continue;
                 }
 
@@ -92,7 +102,6 @@ namespace Compiler.Controllers
                 //setting index of the beginning of each token
                 if (!IsWhiteSpace(code[i]) && code[i] != '\t' && code[i] != ',' && code[i] != ';')
                 {
-
                     SetTokenStartIndex(i);
                 }
 
@@ -112,7 +121,16 @@ namespace Compiler.Controllers
                     // Handeling Include
                     if (currentState == INCLUDE_STATE)
                     {
-                        Include(code, ref i);
+                        string tempToken = token;
+                        if (Include(code, ref i) == 2)
+                        {
+                            SetTokenEndIndex(--i);
+                            token = tempToken;
+                            SetErrorDetails();
+                            InitValues();
+                            continue;
+                        }
+                            
                     }
                     else if (acceptedState)
                     {
@@ -183,7 +201,7 @@ namespace Compiler.Controllers
             return codeReplaced;
         }
 
-        private bool IsWhiteSpace(char c)
+        public bool IsWhiteSpace(char c)
         {
             return c == ' ' || c == (char)160;
         }
@@ -283,12 +301,15 @@ namespace Compiler.Controllers
             return false;
         }
 
-        private void Include(string code, ref int i)
+        private int Include(string code, ref int i)
         {
-            if (Linker.LinkFiles(code, ref i) == false)
+            int returnValue = Linker.LinkFiles(code, ref i);
+            if (returnValue != 0)
             {
                 InitValues();
             }
+
+            return returnValue;
         }
 
         private void CheckConstant(string code, string token, int currentCodeIndex)
@@ -296,7 +317,7 @@ namespace Compiler.Controllers
             char firstCharInToken = token[0];
             char currentChar = code[currentCodeIndex - 1];
 
-            if (IsDigit(firstCharInToken) && currentChar != ' ')
+            if (IsDigit(firstCharInToken) && IsWhiteSpace(currentChar))
             {
                 if (IsDigit(currentChar))
                 {
@@ -315,7 +336,7 @@ namespace Compiler.Controllers
             scannerOutput.Add("Total NO of errors: " + totalErrors);
         }
 
-        private void InitValues()
+        public void InitValues()
         {
             token = "";
             currentState = (int)State.A;
@@ -463,49 +484,7 @@ namespace Compiler.Controllers
                     Debug.WriteLine(item.Key + " = " + item.Value);
                 }
             }
-            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens });
-        }
-
-        [HttpPost]
-        public IActionResult ScanHiddenFile(IFormFile file)
-        {
-            string text;
-
-            if (file == null)
-                return Json(new { status = 404 });
-            try
-            {
-                text = ReadFormFile(file).ToString();
-
-                if(text.Length <= 0)
-                    return Json(new { status = 400 });
-
-                return Json(new { status = 200, data = text });
-            }
-            catch (Exception)
-            {
-                return Json(new { status = 500 });
-            }
-        }
-
-        private StringBuilder ReadFormFile(IFormFile file)
-        {
-            var result = new StringBuilder();
-            try
-            {
-                using (var reader = new StreamReader(file.OpenReadStream()))
-                {
-                    while (reader.Peek() >= 0)
-                        result.AppendLine(reader.ReadLine());
-                }
-            }
-            catch (Exception)
-            {
-                throw new Exception();
-            }
-
-
-            return result;
+            return Json(new { status = 200, output = scannerOutput, tokens = tokensOutput, indexes = Tokens, errors = Errors });
         }
     }
 }
