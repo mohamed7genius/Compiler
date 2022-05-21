@@ -212,7 +212,7 @@ namespace Compiler.Controllers
             {
                 comment = Comment.NoComment;
                 SetTokenEndIndex(i);
-                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex);
+                token = new String(code.ToCharArray(), tokenStartIndex, tokenEndIndex - tokenStartIndex);
                 SetTokenDetails();
                 InitValues();
                 lineNumber++;
