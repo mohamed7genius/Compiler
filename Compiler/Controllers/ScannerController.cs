@@ -26,6 +26,7 @@ namespace Compiler.Controllers
         Comment comment = Comment.NoComment;
         bool acceptedState = false;
         bool canBeConstant = true;
+        string commentStr = "";
         public List<string> scannerOutput = new List<string>();
         public List<string> tokensOutput = new List<string>();
 
@@ -69,16 +70,24 @@ namespace Compiler.Controllers
                     if(ChecktMultilineCommentStart(code, i))
                     {
                         comment = Comment.MultiLine;
+                        commentStr = "/ $ STR $ /";
                     }
 
                     if (CheckSingleLineCommentStart(code, i))
                     {
                         i += 2;
                         comment = Comment.SingleLine;
+                        commentStr = "$ $ $ STR";
                     }
 
                     if (comment != Comment.NoComment)
                         continue;
+                }
+
+                if (commentStr != "")
+                {
+                    AddToTokens(commentStr);
+                    commentStr = "";
                 }
 
                 //--------------------------------
