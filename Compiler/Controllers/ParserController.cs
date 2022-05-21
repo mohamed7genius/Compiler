@@ -9,29 +9,37 @@ namespace Compiler.Controllers
         String[,] table = ParsingTable.init();
         public String[] nonterminals = ParsingTable.GetNonTerminal();
         String[] terminals = ParsingTable.GetTerminal();
-
+        public List<string> parserOutput = new List<string>();
         [HttpPost]
         public IActionResult Index([FromForm] string code)
         {
-            code = "Worthless ID ( ) \n { Iow ID = INT_NUM ; \n Loopwhen ( ID < ID ) { }";
-                        //code = "Iow ID ( Chlo ID , Iow ID ) \n { Iteratewhen ( ID = INT_NUM ; ID < = INT_NUM ; ID = ID + INT_NUM ) { \n Iow ID ; \n } }";
+            
+            //code = "Worthless ID ( ) \n { Iow ID = INT_NUM ; \n Loopwhen ( ID < ID ) { }";
+                       // code = "Iow ID ( Chlo ID , Iow ID ) \n { Iteratewhen ( ID = INT_NUM ; ID < = INT_NUM ; ID = ID + INT_NUM ) { \n Iow ID ; \n } }";
             code = code + " #";
             int LineNumber=1;
 
             int IP = 0;
             Stack stack = new Stack();
+            //Stack <String>stack = new Stack<String>();
             stack.Push("program");
             string[] token = X(code);
             Debug.WriteLine(code);
             string Production = stack.Peek();
-
+             Stack s =new Stack();
             while (stack.Peek() != "#")
 			{   
 				if (IsTerminal(stack.Peek()))
 				{
                     String h = stack.Peek();
 
-
+                    if (stack.Peek() == "#" && token[IP] == "#")
+                    {
+                        Debug.WriteLine("Line " + LineNumber + " Match" + " Rule : " + Production);
+                        parserOutput.Add("Line " + LineNumber + " Match" + " Rule : "+s.Pop());
+                        LineNumber++;
+                        IP++;
+                    }
                     if (stack.Peek() == token[IP])
 					{
                         Debug.WriteLine("Match", token[IP]);
@@ -42,11 +50,14 @@ namespace Compiler.Controllers
 					else
 					{
                         Debug.WriteLine("Error terminal");
+                        parserOutput.Add("Line " + LineNumber + " Unmatch" + " Rule : ");
                         break;
 					}
-                    if (token[IP] == "\n")
+                    if (token[IP]=="") { IP++; }
+                    if (token[IP] == "\n" || token[IP] =="\r\n" || (stack.Peek() =="#" && token[IP] =="#"))
                     {
                         Debug.WriteLine("Line " + LineNumber + " Match"+" Rule : " +Production);
+                        parserOutput.Add("Line " + LineNumber + " Match" + " Rule : ");
                         LineNumber++;
                         IP++;
                     }
@@ -60,6 +71,7 @@ namespace Compiler.Controllers
                     if(column == -1)
                     {
                         Debug.WriteLine("Erorr");
+                        parserOutput.Add("Line " + LineNumber + " Unmatch" + " Rule : ");
                         break;
                     }
 					if (table[row, column]==null)
@@ -70,22 +82,24 @@ namespace Compiler.Controllers
 					else if (table[row, column] != null)
                     {
                        Production = stack.Pop();
+                        s.Push(Production);
                        string [] ProductionArray= X(table[row, column]);
 						for (int i = ProductionArray.Length-1; i >= 0; i--)
 						{
-                            if (ProductionArray[i] == "")
+                            if (ProductionArray[i] == "" || ProductionArray[i]==null)
                             {
 
                             }
                             else
                             {
+
                                 stack.Push(ProductionArray[i]);
                             }
 						}
 					}
 				}
 			}
-            return Json(new { status = 200, output = "Hello World!" });
+            return Json(new { status = 200, output = parserOutput });
         }
         private bool IsTerminal(string terminalCode)
 		{
@@ -125,13 +139,8 @@ namespace Compiler.Controllers
 		{
             string[] Token = Code.Split(" ");
             return Token;
-			/*for (int i=0;i<Code.Length;i++)
-			{
-				if (Code[i] ==" ")
-				{
-
-				}
-			}*/
+		
 		}
+
     }
 }
